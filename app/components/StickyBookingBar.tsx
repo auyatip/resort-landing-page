@@ -23,13 +23,13 @@ export default function StickyBookingBar() {
     <>
       {show && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-2xl z-40 md:hidden animate-slide-up">
-          <div className="max-w-lg mx-auto px-4 py-3 flex gap-2 justify-center">
+          <div className="max-w-lg mx-auto px-4 py-2 flex gap-2 justify-center">
             <a
               href={phoneLink}
-              className="flex-1 cta-primary text-center text-sm py-2"
+              className="flex-1 cta-primary text-center text-sm py-1"
               title="Call now"
             >
-              ☎️ Call
+              📞 Call
             </a>
             <a
               href={whatsappLink}
@@ -38,7 +38,7 @@ export default function StickyBookingBar() {
               className="flex-1 cta-primary text-center text-sm py-2 bg-green-500 hover:bg-green-600"
               title="WhatsApp"
             >
-              💬 WhatsApp
+              WhatsApp
             </a>
             <a
               href={lineLink}
