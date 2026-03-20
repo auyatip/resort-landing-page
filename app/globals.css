@@ -1,0 +1,37 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-light text-darkText font-sans;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-serif font-bold;
+}
+
+.section-padding {
+  @apply px-4 py-12 md:px-8 md:py-20;
+}
+
+.section-container {
+  @apply max-w-6xl mx-auto;
+}
+
+.cta-button {
+  @apply inline-block px-6 py-3 rounded-lg font-semibold transition-all duration-300 ease-in-out;
+}
+
+.cta-primary {
+  @apply cta-button bg-primary text-white hover:bg-opacity-90 hover:shadow-lg;
+}
+
+.cta-secondary {
+  @apply cta-button bg-accent text-primary hover:bg-opacity-90 border border-primary;
+}
