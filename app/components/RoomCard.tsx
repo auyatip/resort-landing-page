@@ -52,7 +52,7 @@ export default function RoomCard({ image, name, features, price }: RoomCardProps
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-3">
             <a
-              href="https://line.me/R/oat/your-line-id"
+              href="https://lin.ee/TB4B1R9"
               className="flex-1 px-6 py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-poppins text-center"
             >
               Book via LINE

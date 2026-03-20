@@ -8,14 +8,14 @@ export default function Hero() {
   )}?text=Hello%20I%20am%20interested%20in%20booking%20a%20room%20at%20A-Thip%20House`;
 
   return (
-    <section
+     <section
       className="relative h-screen md:h-[700px] bg-cover bg-center flex items-center justify-center overflow-hidden"
       style={{
-        backgroundImage:
-          "linear-gradient(135deg, rgba(45, 80, 22, 0.48) 0%, rgba(45, 80, 22, 0.32) 100%), url('/images/570093910_122107554375056471_7287830858178467148_n.jpg')",
-        backgroundAttachment: "fixed",
-      }}
+  backgroundImage:
+    "linear-gradient(135deg, rgba(45, 80, 22, 0.48) 0%, rgba(45, 80, 22, 0.32) 100%), url('/images/570093910_122107554375056471_7287830858178467148_n.jpg')",
+}}
     >
+
       {/* Decorative blur */}
       <div className="absolute top-32 right-20 w-64 h-64 bg-accent/5 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 left-16 w-56 h-56 bg-primary/5 rounded-full blur-3xl"></div>
