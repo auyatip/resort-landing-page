@@ -17,8 +17,8 @@ const galleryImages = [
 
 
   "/images/S__34668549_0.jpg",
+  "/images/kitchen1.jpg",
   "/images/255210.jpg",
-
 
 ];
 
