@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { LanguageProvider } from "./context/LanguageContext";
+import LanguageToggle from "./components/LanguageToggle";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://athiphouse-pai.com"),
@@ -49,7 +51,10 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-light text-darkText">
-        {children}
+        <LanguageProvider>
+          <LanguageToggle />
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

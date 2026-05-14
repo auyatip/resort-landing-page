@@ -1,6 +1,13 @@
+"use client";
+
 import React from "react";
+import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../lib/translations";
 
 export default function Hero() {
+  const { lang } = useLanguage();
+  const t = translations[lang];
+
   const phoneNumber = "+66946765524";
   const whatsappLink = `https://wa.me/${phoneNumber.replace(
     "+",
@@ -27,7 +34,7 @@ export default function Hero() {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 mb-8 px-5 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/25">
           <span className="text-xs md:text-sm font-poppins font-medium tracking-wider uppercase">
-            ✨ Boutique Nature Stay
+            ✨ {t.heroBadge}
           </span>
         </div>
 
@@ -41,10 +48,10 @@ export default function Hero() {
 
         {/* Tagline */}
         <p className="text-base md:text-xl text-white/85 mb-3 font-poppins font-light tracking-wide drop-shadow-lg">
-          Peaceful • Cozy • Surrounded by Nature
+          {t.heroTagline}
         </p>
         <p className="text-xs md:text-sm text-white/70 mb-12 font-poppins tracking-widest uppercase">
-          2.3 km from Pai town center
+          {t.heroLocation}
         </p>
 
         {/* CTA */}
@@ -54,7 +61,7 @@ export default function Hero() {
             className="group relative px-8 py-4 bg-accent text-primary font-bold rounded-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 font-poppins overflow-hidden"
           >
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></span>
-            <span className="relative">Check Availability</span>
+            <span className="relative">{t.heroCheckAvailability}</span>
           </a>
 
           <a
@@ -64,14 +71,14 @@ export default function Hero() {
             className="group relative px-8 py-4 bg-green-500 text-white font-bold rounded-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 font-poppins overflow-hidden"
           >
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></span>
-            <span className="relative">Book via WhatsApp</span>
+            <span className="relative">{t.heroBookWhatsApp}</span>
           </a>
         </div>
 
         {/* Scroll */}
         <div className="mt-16 flex flex-col items-center gap-3">
           <p className="text-xs md:text-sm text-white/65 font-poppins tracking-wider">
-            Scroll down to explore
+            {t.heroScroll}
           </p>
           <div className="animate-bounce">
             <svg

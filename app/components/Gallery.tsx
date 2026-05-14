@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import Lightbox from "./Lightbox";
+import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../lib/translations";
 
 const galleryImages = [
   "/images/571356702_122107554357056471_7702819512676027154_n.jpg",
@@ -23,6 +25,8 @@ const galleryImages = [
 ];
 
 export default function Gallery() {
+  const { lang } = useLanguage();
+  const t = translations[lang];
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -35,10 +39,10 @@ export default function Gallery() {
     <section id="gallery" className="section-padding bg-white">
       <div className="section-container">
         <h2 className="text-4xl font-bold text-center text-primary mb-4 animate-fade-in">
-          Gallery
+          {t.galleryTitle}
         </h2>
         <p className="text-center text-gray-600 mb-12 animate-fade-in">
-          Beautiful moments at A-Thip House @ Pai
+          {t.gallerySubtitle}
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

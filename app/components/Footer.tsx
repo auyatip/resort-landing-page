@@ -1,6 +1,12 @@
+"use client";
+
 import React from "react";
+import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../lib/translations";
 
 export default function Footer() {
+  const { lang } = useLanguage();
+  const t = translations[lang];
   const year = new Date().getFullYear();
 
   return (
@@ -8,12 +14,12 @@ export default function Footer() {
       <div className="section-container section-padding">
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h3 className="text-2xl font-bold mb-2">A-Thip House @ Pai</h3>
-            <p className="text-accent">Peaceful. Comfortable. Nature.</p>
+            <h3 className="text-2xl font-bold mb-2">{t.footerBrand}</h3>
+            <p className="text-accent">{t.footerTagline}</p>
           </div>
 
           <div>
-            <h4 className="font-bold mb-4">Contact Us</h4>
+            <h4 className="font-bold mb-4">{t.footerContact}</h4>
             <div className="space-y-2">
               <p>
                 📱{" "}
@@ -39,20 +45,19 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-bold mb-4">Location</h4>
+            <h4 className="font-bold mb-4">{t.footerLocation}</h4>
             <p className="text-sm leading-relaxed">
-              2.3 km from Pai Town Center <br />
-              Perfect for long stays and digital nomads
+              {t.footerLocationDesc}
             </p>
           </div>
         </div>
 
         <div className="border-t border-accent pt-8 text-center text-sm">
           <p>
-            © {year} A-Thip House @ Pai. All rights reserved.
+            © {year} A-Thip House @ Pai. {t.footerCopyright}
           </p>
           <p className="mt-2 text-xs opacity-75">
-            Created with care for travelers seeking peace and comfort.
+            {t.footerCreated}
           </p>
         </div>
       </div>

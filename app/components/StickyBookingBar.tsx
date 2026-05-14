@@ -1,8 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../lib/translations";
 
 export default function StickyBookingBar() {
+  const { lang } = useLanguage();
+  const t = translations[lang];
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -29,7 +33,7 @@ export default function StickyBookingBar() {
               className="flex-1 cta-primary text-center text-sm py-1"
               title="Call now"
             >
-              📞 Call
+              📞 {t.stickyCall}
             </a>
             <a
               href={whatsappLink}
@@ -38,7 +42,7 @@ export default function StickyBookingBar() {
               className="flex-1 cta-primary text-center text-sm py-2 bg-green-500 hover:bg-green-600"
               title="WhatsApp"
             >
-              WhatsApp
+              {t.stickyWhatsApp}
             </a>
             <a
               href={lineLink}
@@ -47,7 +51,7 @@ export default function StickyBookingBar() {
               className="flex-1 cta-primary text-center text-sm py-2 bg-blue-500 hover:bg-blue-600"
               title="LINE"
             >
-              📱 LINE
+              📱 {t.stickyLINE}
             </a>
           </div>
         </div>

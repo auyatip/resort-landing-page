@@ -5,9 +5,22 @@ interface RoomCardProps {
   name: string;
   features: string[];
   price: string;
+  amenitiesLabel?: string;
+  bookLineText?: string;
+  bookWhatsAppText?: string;
+  needInfoText?: string;
 }
 
-export default function RoomCard({ image, name, features, price }: RoomCardProps) {
+export default function RoomCard({
+  image,
+  name,
+  features,
+  price,
+  amenitiesLabel = "Amenities",
+  bookLineText = "Book via LINE",
+  bookWhatsAppText = "Book via WhatsApp",
+  needInfoText = "Need more info? Call:",
+}: RoomCardProps) {
   return (
     <div className="w-full max-w-2xl animate-fade-in">
       {/* Featured Room Card */}
@@ -32,7 +45,7 @@ export default function RoomCard({ image, name, features, price }: RoomCardProps
 
           {/* Features Grid */}
           <div className="mb-8">
-            <p className="text-sm font-poppins text-gray-500 uppercase tracking-widest mb-4">Amenities</p>
+            <p className="text-sm font-poppins text-gray-500 uppercase tracking-widest mb-4">{amenitiesLabel}</p>
             <div className="grid grid-cols-2 gap-3">
               {features.map((feature, idx) => (
                 <div key={idx} className="flex items-center gap-2">
@@ -55,7 +68,7 @@ export default function RoomCard({ image, name, features, price }: RoomCardProps
               href="https://lin.ee/TB4B1R9"
               className="flex-1 px-6 py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-poppins text-center"
             >
-              Book via LINE
+              {bookLineText}
             </a>
             <a
               href="https://wa.me/66946765524?text=Hi%20I%27m%20interested%20in%20booking%20a%20room%20at%20A-Thip%20House"
@@ -63,13 +76,13 @@ export default function RoomCard({ image, name, features, price }: RoomCardProps
               rel="noopener noreferrer"
               className="flex-1 px-6 py-4 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-poppins text-center"
             >
-              Book via WhatsApp
+              {bookWhatsAppText}
             </a>
           </div>
 
           {/* Info text */}
           <p className="text-center text-xs text-gray-500 mt-4 font-poppins">
-            Need more info? Call: <span className="font-semibold">+66 946765524</span>
+            {needInfoText} <span className="font-semibold">+66 946765524</span>
           </p>
         </div>
       </div>
