@@ -3,6 +3,7 @@ import Hero from "./components/Hero";
 import PageContent from "./components/PageContent";
 import Footer from "./components/Footer";
 import StickyBookingBar from "./components/StickyBookingBar";
+import FloatingButtons from "./components/FloatingButtons";
 
 export const metadata = {
   title: "A-Thip House @ Pai | Peaceful Nature Stay in Pai",
@@ -25,6 +26,7 @@ export default function Home() {
       <PageContent />
       <Footer />
       <StickyBookingBar />
+      <FloatingButtons />
     </>
   );
 }

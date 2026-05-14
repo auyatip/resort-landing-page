@@ -90,6 +90,29 @@ export const translations = {
     footerCreated:
       "Created with care for travelers seeking peace and comfort.",
 
+    // Promo Banner
+    promoTag: "Special Offer",
+    promoTitle: "Monthly Stay Special Deal",
+    promoSubtitle:
+      "Stay longer, save more! Enjoy discounted rates for monthly stays with all amenities included. Perfect for remote workers and nature lovers.",
+    promoCta: "Ask About Monthly Rates",
+
+    // FAQ
+    faqTitle: "Frequently Asked Questions",
+    faqSubtitle: "Everything you need to know about your stay",
+    faqQ1: "How far is A-Thip House from Pai town center?",
+    faqA1: "We are located just 2.3 km from Pai town center — about 5-10 minutes by motorbike or car. Peaceful yet convenient!",
+    faqQ2: "Is WiFi available?",
+    faqA2: "Yes! Free high-speed WiFi is available throughout the property, perfect for video calls, streaming, and remote work.",
+    faqQ3: "What are the check-in and check-out times?",
+    faqA3: "Check-in is at 2:00 PM and check-out is at 12:00 PM. Early check-in or late check-out can be arranged upon request.",
+    faqQ4: "Is it suitable for long stays?",
+    faqA4: "Absolutely! We offer special monthly rates and have everything you need: shared kitchen, fast WiFi, quiet workspace, and a peaceful environment.",
+    faqQ5: "How do I book a room?",
+    faqA5: "You can book directly via WhatsApp, LINE, or phone. Booking direct gives you the best rate — no middleman commissions!",
+    faqQ6: "Is there parking available?",
+    faqA6: "Yes, free parking is available on-site for cars and motorbikes.",
+
     // Sticky Bar
     stickyCall: "Call",
     stickyWhatsApp: "WhatsApp",
@@ -184,6 +207,29 @@ export const translations = {
       "2.3 กม. จากศูนย์กลางเมืองปาย เหมาะสำหรับการพักระยะยาวและ digital nomad",
     footerCopyright: "สงวนลิขสิทธิ์",
     footerCreated: "สร้างด้วยความห่วงใย สำหรับผู้เยี่ยมชมที่ต้องการความสงบสุข",
+
+    // Promo Banner
+    promoTag: "โปรโมชั่นพิเศษ",
+    promoTitle: "ราคาพิเศษสำหรับพักรายเดือน",
+    promoSubtitle:
+      "พักนานกว่า ประหยัดกว่า! รับส่วนลดพิเศษสำหรับการพักรายเดือน พร้อมสิ่งอำนวยความสะดวกครบครัน เหมาะสำหรับคนทำงานระยะไกลและคนรักธรรมชาติ",
+    promoCta: "สอบถามราคารายเดือน",
+
+    // FAQ
+    faqTitle: "คำถามที่พบบ่อย",
+    faqSubtitle: "ทุกสิ่งที่คุณต้องรู้เกี่ยวกับการเข้าพัก",
+    faqQ1: "A-Thip House ห่างจากตัวเมืองปายแค่ไหน?",
+    faqA1: "เราอยู่ห่างจากศูนย์กลางเมืองปายเพียง 2.3 กม. ใช้เวลาประมาณ 5-10 นาทีโดยรถมอเตอร์ไซค์หรือรถยนต์ เงียบสงบแต่สะดวกสบาย!",
+    faqQ2: "มี WiFi หรือไม่?",
+    faqA2: "มี! WiFi ความเร็วสูงฟรีทั่วทั้งที่พัก เหมาะสำหรับ video call ดูสตรีมมิ่ง และทำงานระยะไกล",
+    faqQ3: "เช็คอินและเช็คเอาท์กี่โมง?",
+    faqA3: "เช็คอิน 14:00 น. เช็คเอาท์ 12:00 น. สามารถจัดเรื่องเช็คอินเร็วหรือเช็คเอาท์ช้าเพิ่มเติมได้",
+    faqQ4: "เหมาะสำหรับพักระยะยาวไหม?",
+    faqA4: "แน่นอน! เรามีราคาพิเศษรายเดือน พร้อมครัวใช้ร่วม WiFi เร็ว พื้นที่ทำงานเงียบสงบ และบรรยากาศแสนดี",
+    faqQ5: "จองห้องอย่างไร?",
+    faqA5: "จองได้โดยตรงผ่าน WhatsApp, LINE หรือโทรศัพท์ จองตรงได้ราคาดีที่สุด — ไม่มีค่าคอมมิชชั่น!",
+    faqQ6: "มีที่จอดรถไหม?",
+    faqA6: "มี! ที่จอดรถฟรีสำหรับรถยนต์และรถมอเตอร์ไซค์",
 
     // Sticky Bar
     stickyCall: "โทร",

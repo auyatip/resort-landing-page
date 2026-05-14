@@ -4,8 +4,11 @@ import React from "react";
 import RoomCard from "./RoomCard";
 import ReviewCard from "./ReviewCard";
 import Gallery from "./Gallery";
+import PromoBanner from "./PromoBanner";
+import FAQ from "./FAQ";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../lib/translations";
+import { useScrollAnimation } from "../lib/useScrollAnimation";
 
 const reviews = [
   {
@@ -40,6 +43,20 @@ const reviews = [
   },
 ];
 
+function AnimatedSection({ children, className }: { children: React.ReactNode; className?: string }) {
+  const { ref, isVisible } = useScrollAnimation(0.1);
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ${
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      } ${className || ""}`}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function PageContent() {
   const { lang } = useLanguage();
   const t = translations[lang];
@@ -53,123 +70,151 @@ export default function PageContent() {
 
   return (
     <>
+      {/* PROMO BANNER */}
+      <AnimatedSection>
+        <PromoBanner />
+      </AnimatedSection>
+
       {/* ROOMS */}
       <section id="rooms" className="section-padding bg-light">
         <div className="section-container">
-          <h2 className="text-4xl font-bold text-center text-primary mb-4">
-            {t.roomsTitle}
-          </h2>
-          <p className="text-center text-gray-600 mb-12">
-            {t.roomsSubtitle}
-          </p>
+          <AnimatedSection>
+            <h2 className="text-4xl font-bold text-center text-primary mb-4">
+              {t.roomsTitle}
+            </h2>
+            <p className="text-center text-gray-600 mb-12">
+              {t.roomsSubtitle}
+            </p>
+          </AnimatedSection>
 
-          <div className="flex justify-center">
-            <RoomCard
-              image="/images/762705354.jpg"
-              name={t.roomName}
-              features={t.roomFeatures}
-              price="฿1,200 - ฿1,500 / night"
-              amenitiesLabel={t.roomAmenities}
-              bookLineText={t.roomBookLine}
-              bookWhatsAppText={t.roomBookWhatsApp}
-              needInfoText={t.roomNeedInfo}
-            />
-          </div>
+          <AnimatedSection>
+            <div className="flex justify-center">
+              <RoomCard
+                image="/images/762705354.jpg"
+                name={t.roomName}
+                features={t.roomFeatures}
+                price="฿1,200 - ฿1,500 / night"
+                amenitiesLabel={t.roomAmenities}
+                bookLineText={t.roomBookLine}
+                bookWhatsAppText={t.roomBookWhatsApp}
+                needInfoText={t.roomNeedInfo}
+              />
+            </div>
+          </AnimatedSection>
         </div>
       </section>
 
       {/* GALLERY */}
-      <Gallery />
+      <AnimatedSection>
+        <Gallery />
+      </AnimatedSection>
 
       {/* ABOUT */}
       <section className="section-padding bg-light">
         <div className="section-container">
-          <h2 className="text-4xl font-bold text-center text-primary mb-12">
-            {t.aboutTitle}
-          </h2>
+          <AnimatedSection>
+            <h2 className="text-4xl font-bold text-center text-primary mb-12">
+              {t.aboutTitle}
+            </h2>
+          </AnimatedSection>
 
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-4">
-              <div className="flex items-start">
-                <span className="text-3xl mr-4">🌿</span>
-                <div>
-                  <h3 className="font-bold text-primary mb-1">
-                    {t.aboutPeaceful}
-                  </h3>
-                  <p className="text-gray-700">
-                    {t.aboutPeacefulDesc}
-                  </p>
+              <AnimatedSection>
+                <div className="flex items-start">
+                  <span className="text-3xl mr-4">🌿</span>
+                  <div>
+                    <h3 className="font-bold text-primary mb-1">
+                      {t.aboutPeaceful}
+                    </h3>
+                    <p className="text-gray-700">
+                      {t.aboutPeacefulDesc}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </AnimatedSection>
 
-              <div className="flex items-start">
-                <span className="text-3xl mr-4">🛏️</span>
-                <div>
-                  <h3 className="font-bold text-primary mb-1">
-                    {t.aboutClean}
-                  </h3>
-                  <p className="text-gray-700">
-                    {t.aboutCleanDesc}
-                  </p>
+              <AnimatedSection>
+                <div className="flex items-start">
+                  <span className="text-3xl mr-4">🛏️</span>
+                  <div>
+                    <h3 className="font-bold text-primary mb-1">
+                      {t.aboutClean}
+                    </h3>
+                    <p className="text-gray-700">
+                      {t.aboutCleanDesc}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </AnimatedSection>
 
-              <div className="flex items-start">
-                <span className="text-3xl mr-4">🌍</span>
-                <div>
-                  <h3 className="font-bold text-primary mb-1">
-                    {t.aboutNature}
-                  </h3>
-                  <p className="text-gray-700">
-                    {t.aboutNatureDesc}
-                  </p>
+              <AnimatedSection>
+                <div className="flex items-start">
+                  <span className="text-3xl mr-4">🌍</span>
+                  <div>
+                    <h3 className="font-bold text-primary mb-1">
+                      {t.aboutNature}
+                    </h3>
+                    <p className="text-gray-700">
+                      {t.aboutNatureDesc}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </AnimatedSection>
 
-              <div className="flex items-start">
-                <span className="text-3xl mr-4">🏙️</span>
-                <div>
-                  <h3 className="font-bold text-primary mb-1">
-                    {t.aboutLocation}
-                  </h3>
-                  <p className="text-gray-700">
-                    {t.aboutLocationDesc}
-                  </p>
+              <AnimatedSection>
+                <div className="flex items-start">
+                  <span className="text-3xl mr-4">🏙️</span>
+                  <div>
+                    <h3 className="font-bold text-primary mb-1">
+                      {t.aboutLocation}
+                    </h3>
+                    <p className="text-gray-700">
+                      {t.aboutLocationDesc}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </AnimatedSection>
 
-              <div className="flex items-start">
-                <span className="text-3xl mr-4">💻</span>
-                <div>
-                  <h3 className="font-bold text-primary mb-1">
-                    {t.aboutDigital}
-                  </h3>
-                  <p className="text-gray-700">
-                    {t.aboutDigitalDesc}
-                  </p>
+              <AnimatedSection>
+                <div className="flex items-start">
+                  <span className="text-3xl mr-4">💻</span>
+                  <div>
+                    <h3 className="font-bold text-primary mb-1">
+                      {t.aboutDigital}
+                    </h3>
+                    <p className="text-gray-700">
+                      {t.aboutDigitalDesc}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </AnimatedSection>
 
-              <div className="flex items-start">
-                <span className="text-3xl mr-4">💰</span>
-                <div>
-                  <h3 className="font-bold text-primary mb-1">
-                    {t.aboutPrice}
-                  </h3>
-                  <p className="text-gray-700">
-                    {t.aboutPriceDesc}
-                  </p>
+              <AnimatedSection>
+                <div className="flex items-start">
+                  <span className="text-3xl mr-4">💰</span>
+                  <div>
+                    <h3 className="font-bold text-primary mb-1">
+                      {t.aboutPrice}
+                    </h3>
+                    <p className="text-gray-700">
+                      {t.aboutPriceDesc}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </AnimatedSection>
             </div>
 
-            <div className="rounded-2xl overflow-hidden shadow-lg h-96">
-              <img
-                src="/images/569897459_122107554417056471_2994833732871230405_n.jpg"
-                alt="A-Thip House Pai"
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <AnimatedSection>
+              <div className="rounded-2xl overflow-hidden shadow-lg h-96">
+                <img
+                  src="/images/569897459_122107554417056471_2994833732871230405_n.jpg"
+                  alt="A-Thip House Pai guesthouse surrounded by nature"
+                  className="w-full h-full object-contain"
+                  loading="lazy"
+                />
+              </div>
+            </AnimatedSection>
           </div>
         </div>
       </section>
@@ -177,77 +222,94 @@ export default function PageContent() {
       {/* REVIEWS */}
       <section className="section-padding bg-white">
         <div className="section-container">
-          <h2 className="text-4xl font-bold text-center text-primary mb-4">
-            {t.reviewsTitle}
-          </h2>
-          <p className="text-center text-gray-600 mb-12">
-            {t.reviewsSubtitle}
-          </p>
+          <AnimatedSection>
+            <h2 className="text-4xl font-bold text-center text-primary mb-4">
+              {t.reviewsTitle}
+            </h2>
+            <p className="text-center text-gray-600 mb-12">
+              {t.reviewsSubtitle}
+            </p>
+          </AnimatedSection>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {reviews.slice(0, 3).map((review, idx) => (
-              <ReviewCard key={idx} {...review} />
-            ))}
-          </div>
+          <AnimatedSection>
+            <div className="grid md:grid-cols-3 gap-6">
+              {reviews.slice(0, 3).map((review, idx) => (
+                <ReviewCard key={idx} {...review} />
+              ))}
+            </div>
+          </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 gap-6 mt-6">
-            {reviews.slice(3).map((review, idx) => (
-              <ReviewCard key={idx + 3} {...review} />
-            ))}
-          </div>
+          <AnimatedSection>
+            <div className="grid md:grid-cols-2 gap-6 mt-6">
+              {reviews.slice(3).map((review, idx) => (
+                <ReviewCard key={idx + 3} {...review} />
+              ))}
+            </div>
+          </AnimatedSection>
         </div>
       </section>
+
+      {/* FAQ */}
+      <AnimatedSection>
+        <FAQ />
+      </AnimatedSection>
 
       {/* LOCATION */}
       <section className="section-padding bg-light">
         <div className="section-container">
-          <h2 className="text-4xl font-bold text-center text-primary mb-4">
-            {t.locationTitle}
-          </h2>
-          <p className="text-center text-gray-600 mb-8">
-            {t.locationSubtitle}
-          </p>
+          <AnimatedSection>
+            <h2 className="text-4xl font-bold text-center text-primary mb-4">
+              {t.locationTitle}
+            </h2>
+            <p className="text-center text-gray-600 mb-8">
+              {t.locationSubtitle}
+            </p>
+          </AnimatedSection>
 
           <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <h3 className="font-bold text-primary text-xl mb-4">
-                {t.locationHow}
-              </h3>
-              <ul className="space-y-3 text-gray-700">
-                <li>
-                  <strong>{t.locationMaeHongSon}</strong> {t.locationMaeHongSonTime}
-                </li>
-                <li>
-                  <strong>{t.locationChiangMai}</strong> {t.locationChiangMaiTime}
-                </li>
-                <li>
-                  <strong>{t.locationFromPai}</strong> {t.locationFromPaiTime}
-                </li>
-                <li>
-                  <strong>{t.locationNeedDirections}</strong> {t.locationNeedDirectionsDesc}
-                </li>
-              </ul>
+            <AnimatedSection>
+              <div>
+                <h3 className="font-bold text-primary text-xl mb-4">
+                  {t.locationHow}
+                </h3>
+                <ul className="space-y-3 text-gray-700">
+                  <li>
+                    <strong>{t.locationMaeHongSon}</strong> {t.locationMaeHongSonTime}
+                  </li>
+                  <li>
+                    <strong>{t.locationChiangMai}</strong> {t.locationChiangMaiTime}
+                  </li>
+                  <li>
+                    <strong>{t.locationFromPai}</strong> {t.locationFromPaiTime}
+                  </li>
+                  <li>
+                    <strong>{t.locationNeedDirections}</strong> {t.locationNeedDirectionsDesc}
+                  </li>
+                </ul>
 
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cta-primary mt-6 inline-block"
-              >
-                {t.locationGetDirections}
-              </a>
-            </div>
+                <a
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="cta-primary mt-6 inline-block"
+                >
+                  {t.locationGetDirections}
+                </a>
+              </div>
+            </AnimatedSection>
 
-            <div className="rounded-2xl overflow-hidden shadow-lg h-96">
-              <iframe
-                title="A-Thip House @ Pai Location"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.8!2d98.4225!3d19.3581!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30da81f6e630fcc1%3A0x536127fb4513ac1f!2sA-thip%20House%20%40Pai!5e0!3m2!1sen!2sen!4v1710920000000"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                loading="lazy"
-              />
-            </div>
+            <AnimatedSection>
+              <div className="rounded-2xl overflow-hidden shadow-lg h-96">
+                <iframe
+                  title="A-Thip House @ Pai Location"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.8!2d98.4225!3d19.3581!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30da81f6e630fcc1%3A0x536127fb4513ac1f!2sA-thip%20House%20%40Pai!5e0!3m2!1sen!2sen!4v1710920000000"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                />
+              </div>
+            </AnimatedSection>
           </div>
         </div>
       </section>
@@ -255,41 +317,43 @@ export default function PageContent() {
       {/* CTA */}
       <section className="section-padding bg-primary text-white">
         <div className="section-container text-center">
-          <h2 className="text-4xl font-bold mb-4">
-            {t.ctaTitle}
-          </h2>
-          <p className="text-lg opacity-90 mb-8">
-            {t.ctaSubtitle}
-          </p>
+          <AnimatedSection>
+            <h2 className="text-4xl font-bold mb-4">
+              {t.ctaTitle}
+            </h2>
+            <p className="text-lg opacity-90 mb-8">
+              {t.ctaSubtitle}
+            </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href={`tel:${phoneNumber}`}
-              className="cta-primary bg-accent text-primary"
-            >
-              ☎️ {t.ctaCallNow} {phoneNumber}
-            </a>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href={`tel:${phoneNumber}`}
+                className="cta-primary bg-accent text-primary"
+              >
+                ☎️ {t.ctaCallNow} {phoneNumber}
+              </a>
 
-            <a
-              href={whatsappLink}
-              target="_blank"
-              className="cta-primary bg-green-500 text-white"
-            >
-              💬 {t.ctaWhatsApp}
-            </a>
+              <a
+                href={whatsappLink}
+                target="_blank"
+                className="cta-primary bg-green-500 text-white"
+              >
+                💬 {t.ctaWhatsApp}
+              </a>
 
-            <a
-              href={lineLink}
-              target="_blank"
-              className="cta-primary bg-blue-500 text-white"
-            >
-              📱 {t.ctaLINE}
-            </a>
-          </div>
+              <a
+                href={lineLink}
+                target="_blank"
+                className="cta-primary bg-blue-500 text-white"
+              >
+                📱 {t.ctaLINE}
+              </a>
+            </div>
 
-          <p className="mt-8 text-sm opacity-75">
-            {t.ctaFooter}
-          </p>
+            <p className="mt-8 text-sm opacity-75">
+              {t.ctaFooter}
+            </p>
+          </AnimatedSection>
         </div>
       </section>
     </>
