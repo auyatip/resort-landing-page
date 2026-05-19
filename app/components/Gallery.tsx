@@ -12,11 +12,17 @@ const galleryImages = [
   { src: "/images/572413623_122107554537056471_1359709838975656868_n.jpg", alt: "Beautiful nature view from A-Thip House Pai guesthouse" },
   { src: "/images/571205205_122107554495056471_2385969894286004164_n.jpg", alt: "Cottage style accommodation at A-Thip House Pai" },
   { src: "/images/762705357.jpg", alt: "Clean and cozy room at A-Thip House Pai Thailand" },
-  { src: "/images/762705359.jpg", alt: "Private bathroom with hot shower at A-Thip House" },
   { src: "/images/762705353.jpg", alt: "Air conditioned room with amenities at A-Thip House Pai" },
+
+  { src: "/images/762705359.jpg", alt: "Private bathroom with hot shower at A-Thip House" },
+  { src: "/images/toilet2.jpg", alt: "Private bathroom with hot shower at A-Thip House" },
+  { src: "/images/toilet3.jpg", alt: "Private bathroom with hot shower at A-Thip House" },
+  { src: "/images/toilet4.jpg", alt: "Private bathroom with hot shower at A-Thip House" },
+
   { src: "/images/S__34668549_0.jpg", alt: "Outdoor seating area surrounded by greenery at A-Thip House" },
   { src: "/images/kitchen1.jpg", alt: "Shared kitchen facility at A-Thip House Pai" },
   { src: "/images/255210.jpg", alt: "Peaceful courtyard and nature at A-Thip House Pai Thailand" },
+
 ];
 
 export default function Gallery() {
