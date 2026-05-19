@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import Lightbox from "./Lightbox";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../lib/translations";
@@ -13,25 +13,28 @@ const galleryImages = [
   { src: "/images/571205205_122107554495056471_2385969894286004164_n.jpg", alt: "Cottage style accommodation at A-Thip House Pai" },
   { src: "/images/762705357.jpg", alt: "Clean and cozy room at A-Thip House Pai Thailand" },
   { src: "/images/762705353.jpg", alt: "Air conditioned room with amenities at A-Thip House Pai" },
-
   { src: "/images/762705359.jpg", alt: "Private bathroom with hot shower at A-Thip House" },
   { src: "/images/toilet2.jpg", alt: "Private bathroom with hot shower at A-Thip House" },
   { src: "/images/toilet3.jpg", alt: "Private bathroom with hot shower at A-Thip House" },
   { src: "/images/toilet4.jpg", alt: "Private bathroom with hot shower at A-Thip House" },
-
   { src: "/images/S__34668549_0.jpg", alt: "Outdoor seating area surrounded by greenery at A-Thip House" },
   { src: "/images/kitchen1.jpg", alt: "Shared kitchen facility at A-Thip House Pai" },
   { src: "/images/255210.jpg", alt: "Peaceful courtyard and nature at A-Thip House Pai Thailand" },
-
 ];
 
 export default function Gallery() {
   const { lang } = useLanguage();
   const t = translations[lang];
-  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  // Mobile slider state
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const touchStartRef = useRef<number | null>(null);
+  const touchEndRef = useRef<number | null>(null);
 
   const goTo = useCallback(
     (index: number) => {
@@ -51,7 +54,26 @@ export default function Gallery() {
     goTo(currentIndex === galleryImages.length - 1 ? 0 : currentIndex + 1);
   }, [currentIndex, goTo]);
 
-  // Keyboard navigation
+  // Touch/swipe handlers for mobile slider
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchEndRef.current = null;
+    touchStartRef.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndRef.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartRef.current || !touchEndRef.current) return;
+    const distance = touchStartRef.current - touchEndRef.current;
+    if (Math.abs(distance) > 50) {
+      if (distance > 0) goNext();
+      else goPrev();
+    }
+  };
+
+  // Keyboard navigation for slider
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (lightboxOpen) return;
@@ -62,28 +84,6 @@ export default function Gallery() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [goPrev, goNext, lightboxOpen]);
 
-  // Touch/swipe support
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    if (Math.abs(distance) > 50) {
-      if (distance > 0) goNext();
-      else goPrev();
-    }
-  };
-
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
     setLightboxOpen(true);
@@ -92,104 +92,148 @@ export default function Gallery() {
   return (
     <section id="gallery" className="section-padding bg-white">
       <div className="section-container">
-        <h2 className="text-4xl font-bold text-center text-primary mb-4 animate-fade-in">
+        <h2 className="text-3xl md:text-4xl font-bold text-center text-primary mb-3 md:mb-4 animate-fade-in">
           {t.galleryTitle}
         </h2>
-        <p className="text-center text-gray-600 mb-12 animate-fade-in">
+        <p className="text-center text-gray-600 mb-8 md:mb-12 animate-fade-in text-sm md:text-base">
           {t.gallerySubtitle}
         </p>
 
-        {/* Main Slider */}
-        <div className="relative max-w-4xl mx-auto">
-          {/* Main Image */}
-          <div
-            className="relative h-64 sm:h-80 md:h-[450px] lg:h-[500px] rounded-2xl overflow-hidden cursor-pointer group shadow-lg"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onClick={() => openLightbox(currentIndex)}
-          >
-            {galleryImages.map((image, index) => (
-              <div
-                key={index}
-                className={`absolute inset-0 transition-all duration-500 ease-in-out ${
-                  index === currentIndex
-                    ? "opacity-100 scale-100"
-                    : "opacity-0 scale-105"
-                }`}
-              >
+        {/* ========== Mobile Slider (< md) ========== */}
+        <div className="md:hidden">
+          <div className="relative">
+            {/* Main slider image */}
+            <div
+              className="relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer shadow-lg"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onClick={() => openLightbox(currentIndex)}
+            >
+              {galleryImages.map((image, index) => (
                 <img
+                  key={index}
                   src={image.src}
                   alt={image.alt}
-                  className="w-full h-full object-cover"
+                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-in-out ${
+                    index === currentIndex
+                      ? "opacity-100 scale-100"
+                      : "opacity-0 scale-105"
+                  }`}
                   loading={index < 2 ? "eager" : "lazy"}
                 />
-              </div>
-            ))}
+              ))}
 
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 rounded-full w-14 h-14 flex items-center justify-center shadow-lg">
-                <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {/* Prev Arrow — always visible on mobile */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goPrev();
+                }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 backdrop-blur-sm text-primary rounded-full w-9 h-9 flex items-center justify-center shadow-md active:scale-95 transition-transform"
+                aria-label="Previous image"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              {/* Next Arrow — always visible on mobile */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goNext();
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 backdrop-blur-sm text-primary rounded-full w-9 h-9 flex items-center justify-center shadow-md active:scale-95 transition-transform"
+                aria-label="Next image"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {/* Counter badge */}
+              <div className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full font-medium">
+                {currentIndex + 1} / {galleryImages.length}
+              </div>
+
+              {/* Tap to expand hint */}
+              <div className="absolute bottom-2 left-2 bg-black/50 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full flex items-center gap-1">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
                 </svg>
               </div>
             </div>
 
-            {/* Prev Arrow */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                goPrev();
-              }}
-              className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-primary rounded-full w-11 h-11 flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 opacity-0 group-hover:opacity-100"
-              aria-label="Previous image"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-
-            {/* Next Arrow */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                goNext();
-              }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-primary rounded-full w-11 h-11 flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 opacity-0 group-hover:opacity-100"
-              aria-label="Next image"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            {/* Image counter */}
-            <div className="absolute bottom-3 right-3 bg-black/60 text-white text-sm px-3 py-1 rounded-full">
-              {currentIndex + 1} / {galleryImages.length}
+            {/* Dot indicators */}
+            <div className="flex justify-center items-center gap-1.5 mt-3 flex-wrap">
+              {galleryImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goTo(index)}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    index === currentIndex
+                      ? "bg-primary w-4"
+                      : "bg-gray-300 w-1.5 hover:bg-gray-400"
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
             </div>
           </div>
+        </div>
 
-          {/* Thumbnail Strip */}
-          <div className="mt-4 flex gap-2 overflow-x-auto pb-2 justify-center">
-            {galleryImages.map((image, index) => (
-              <button
+        {/* ========== Desktop Grid (md+) ========== */}
+        <div className="hidden md:block">
+          <div className="relative grid grid-cols-4 grid-rows-2 gap-3 rounded-2xl overflow-hidden h-[400px] lg:h-[500px]">
+            {/* First large image — spans 2 cols, 2 rows */}
+            <div
+              className="col-span-2 row-span-2 cursor-pointer group relative overflow-hidden"
+              onClick={() => openLightbox(0)}
+            >
+              <img
+                src={galleryImages[0].src}
+                alt={galleryImages[0].alt}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                loading="eager"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
+            </div>
+
+            {/* Images 2–5 */}
+            {galleryImages.slice(1, 5).map((image, index) => (
+              <div
                 key={index}
-                onClick={() => goTo(index)}
-                className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden transition-all duration-300 border-2 ${
-                  index === currentIndex
-                    ? "border-primary scale-110 shadow-md"
-                    : "border-transparent opacity-60 hover:opacity-100 hover:scale-105"
-                }`}
+                className="cursor-pointer group relative overflow-hidden"
+                onClick={() => openLightbox(index + 1)}
               >
                 <img
                   src={image.src}
                   alt={image.alt}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   loading="lazy"
                 />
-              </button>
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
+                {/* "+N more" overlay on the last visible image */}
+                {index === 3 && galleryImages.length > 5 && (
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 flex items-center justify-center transition-all duration-300">
+                    <span className="text-white font-semibold text-lg">
+                      +{galleryImages.length - 5}
+                    </span>
+                  </div>
+                )}
+              </div>
             ))}
+
+            {/* View all photos button */}
+            <button
+              onClick={() => openLightbox(0)}
+              className="absolute bottom-4 right-4 bg-white hover:bg-gray-50 text-primary px-4 py-2.5 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all hover:scale-105 text-sm border border-gray-200"
+            >
+              {lang === "th"
+                ? `ดูทั้งหมด ${galleryImages.length} รูป`
+                : `View all ${galleryImages.length} photos`}
+            </button>
           </div>
         </div>
       </div>
@@ -198,6 +242,7 @@ export default function Gallery() {
       {lightboxOpen && (
         <Lightbox
           images={galleryImages.map((img) => img.src)}
+          alts={galleryImages.map((img) => img.alt)}
           initialIndex={lightboxIndex}
           onClose={() => setLightboxOpen(false)}
         />
