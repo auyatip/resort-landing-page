@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { Redis } from "@upstash/redis";
 
-const DATA_FILE = path.join(process.cwd(), "data", "visitors.json");
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
+const redis = Redis.fromEnv();
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "athip2024";
 
 interface Visitor {
   id: string;
@@ -19,16 +18,6 @@ interface Visitor {
   lastActive: string;
 }
 
-function readData(): Visitor[] {
-  try {
-    const raw = fs.readFileSync(DATA_FILE, "utf-8");
-    const parsed = JSON.parse(raw);
-    return parsed.visitors || [];
-  } catch {
-    return [];
-  }
-}
-
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get("authorization");
@@ -38,7 +27,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
 
-    const visitors = readData();
+    const visitors: Visitor[] = (await redis.get("visitors")) || [];
     const now = new Date();
     const todayStr = now.toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" });
 
@@ -46,7 +35,7 @@ export async function GET(request: NextRequest) {
     const totalVisits = visitors.length;
     const todayVisits = visitors.filter((v) => v.date === todayStr).length;
 
-    // Unique visitors by IP (approximation)
+    // Unique visitors by IP
     const uniqueIPs = new Set(visitors.map((v) => v.ip));
     const uniqueVisitors = uniqueIPs.size;
 
@@ -55,7 +44,7 @@ export async function GET(request: NextRequest) {
     );
     const todayUniqueVisitors = todayUniqueIPs.size;
 
-    // Average duration (only for visitors with duration > 0)
+    // Average duration
     const withDuration = visitors.filter((v) => v.durationMinutes > 0);
     const avgDuration =
       withDuration.length > 0
@@ -71,7 +60,7 @@ export async function GET(request: NextRequest) {
           todayWithDuration.length
         : 0;
 
-    // Visits by date (last 30 days)
+    // Visits by date
     const visitsByDate: Record<string, number> = {};
     visitors.forEach((v) => {
       visitsByDate[v.date] = (visitsByDate[v.date] || 0) + 1;
@@ -98,7 +87,7 @@ export async function GET(request: NextRequest) {
       .slice(0, 10)
       .map(([page, count]) => ({ page, count }));
 
-    // Device type breakdown
+    // Device breakdown
     const deviceCount = { mobile: 0, desktop: 0, tablet: 0 };
     visitors.forEach((v) => {
       const ua = v.userAgent.toLowerCase();
@@ -121,7 +110,7 @@ export async function GET(request: NextRequest) {
         time: v.time,
         page: v.page,
         referrer: v.referrer,
-        ip: v.ip.replace(/(\d+\.\d+)\.\d+\.\d+/, "$1.***.***"), // Partially mask IP
+        ip: v.ip.replace(/(\d+\.\d+)\.\d+\.\d+/, "$1.***.***"),
         durationMinutes: Math.round(v.durationMinutes * 10) / 10,
         device:
           v.userAgent.toLowerCase().includes("mobile") ||

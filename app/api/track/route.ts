@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { Redis } from "@upstash/redis";
 
-const DATA_FILE = path.join(process.cwd(), "data", "visitors.json");
+const redis = Redis.fromEnv();
 
 interface Visitor {
   id: string;
@@ -18,22 +17,6 @@ interface Visitor {
   lastActive: string;
 }
 
-function readData(): Visitor[] {
-  try {
-    const raw = fs.readFileSync(DATA_FILE, "utf-8");
-    const parsed = JSON.parse(raw);
-    return parsed.visitors || [];
-  } catch {
-    return [];
-  }
-}
-
-function writeData(visitors: Visitor[]) {
-  // Keep last 5000 records to prevent file from growing too large
-  const trimmed = visitors.slice(-5000);
-  fs.writeFileSync(DATA_FILE, JSON.stringify({ visitors: trimmed }, null, 2), "utf-8");
-}
-
 function getClientIP(request: NextRequest): string {
   const xff = request.headers.get("x-forwarded-for");
   if (xff) {
@@ -47,12 +30,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { type, visitorId, page, referrer, userAgent, durationMinutes } = body;
 
-    const visitors = readData();
     const ip = getClientIP(request);
     const now = new Date();
 
     if (type === "enter") {
-      // New visitor entry
       const visitor: Visitor = {
         id: visitorId,
         timestamp: now.toISOString(),
@@ -71,34 +52,29 @@ export async function POST(request: NextRequest) {
         durationMinutes: 0,
         lastActive: now.toISOString(),
       };
-      visitors.push(visitor);
-      writeData(visitors);
+
+      // Get current list, append new visitor, keep last 5000
+      const current: Visitor[] = (await redis.get("visitors")) || [];
+      current.push(visitor);
+      const trimmed = current.slice(-5000);
+      await redis.set("visitors", trimmed);
 
       return NextResponse.json({ success: true, message: "Visit recorded" });
     }
 
-    if (type === "heartbeat") {
-      // Update duration for existing visitor
+    if (type === "heartbeat" || type === "leave") {
+      const visitors: Visitor[] = (await redis.get("visitors")) || [];
       const visitor = visitors.find((v) => v.id === visitorId);
       if (visitor) {
         visitor.lastActive = now.toISOString();
         visitor.durationMinutes = durationMinutes || visitor.durationMinutes;
-        writeData(visitors);
+        await redis.set("visitors", visitors);
       }
 
-      return NextResponse.json({ success: true, message: "Heartbeat updated" });
-    }
-
-    if (type === "leave") {
-      // Final update when user leaves
-      const visitor = visitors.find((v) => v.id === visitorId);
-      if (visitor) {
-        visitor.lastActive = now.toISOString();
-        visitor.durationMinutes = durationMinutes || visitor.durationMinutes;
-        writeData(visitors);
-      }
-
-      return NextResponse.json({ success: true, message: "Leave recorded" });
+      return NextResponse.json({
+        success: true,
+        message: type === "heartbeat" ? "Heartbeat updated" : "Leave recorded",
+      });
     }
 
     return NextResponse.json({ success: false, message: "Unknown type" }, { status: 400 });
