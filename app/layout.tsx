@@ -3,6 +3,7 @@ import "./globals.css";
 import { LanguageProvider } from "./context/LanguageContext";
 import LanguageToggle from "./components/LanguageToggle";
 import JsonLd from "./components/JsonLd";
+import VisitorTracker from "./components/VisitorTracker";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://a-thip-housepai.vercel.app"),
@@ -70,6 +71,7 @@ export default function RootLayout({
       <body className="bg-light text-darkText">
         <LanguageProvider>
           <LanguageToggle />
+          <VisitorTracker />
           {children}
         </LanguageProvider>
       </body>
