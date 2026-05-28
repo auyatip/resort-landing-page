@@ -9,7 +9,7 @@ export default function LanguageToggle() {
   return (
     <button
       onClick={toggleLang}
-      className="fixed top-4 right-4 z-50 flex items-center gap-1.5 px-3 py-2 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-gray-200 hover:bg-white hover:shadow-xl transition-all duration-300 text-sm font-semibold"
+      className="fixed top-4 left-4 z-40 flex items-center gap-1.5 px-3 py-2 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-gray-200 hover:bg-white hover:shadow-xl transition-all duration-300 text-sm font-semibold"
       aria-label="Switch language"
     >
       <span className="text-base">{lang === "en" ? "🇬🇧" : "🇹🇭"}</span>
