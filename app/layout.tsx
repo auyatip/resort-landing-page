@@ -6,7 +6,7 @@ import JsonLd from "./components/JsonLd";
 import VisitorTracker from "./components/VisitorTracker";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://a-thip-housepai.vercel.app"),
+  metadataBase: new URL("https://www.athiphousepai.com/"),
   title: {
     template: "%s | A-Thip House @ Pai",
     default: "A-Thip House @ Pai | Peaceful Nature Stay in Pai",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://a-thip-housepai.vercel.app",
+    url: "https://www.athiphousepai.com/",
     siteName: "A-Thip House @ Pai",
     title: "A-Thip House @ Pai | Peaceful Nature Stay in Pai",
     description:
@@ -39,10 +39,10 @@ export const metadata: Metadata = {
     ],
   },
   alternates: {
-    canonical: "https://a-thip-housepai.vercel.app",
+    canonical: "https://www.athiphousepai.com/",
     languages: {
-      "en": "https://a-thip-housepai.vercel.app",
-      "th": "https://a-thip-housepai.vercel.app",
+      "en": "https://www.athiphousepai.com/",
+      "th": "https://www.athiphousepai.com/",
     },
   },
   robots: {
