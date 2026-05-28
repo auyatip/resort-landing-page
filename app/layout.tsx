@@ -66,6 +66,26 @@ export default function RootLayout({
           rel="icon"
           href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏡</text></svg>"
         />
+        {/* Preload critical fonts with font-display:swap */}
+        <link
+          rel="preconnect"
+          href="https://fonts.googleapis.com"
+        />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+        {/* Preload hero background image (used as CSS background-image) */}
+        <link
+          rel="preload"
+          as="image"
+          href="/images/570093910_122107554375056471_7287830858178467148_n.jpg"
+        />
         <JsonLd />
       </head>
       <body className="bg-light text-darkText">

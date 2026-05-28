@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import RoomCard from "./RoomCard";
 import ReviewCard from "./ReviewCard";
 import Gallery from "./Gallery";
@@ -48,9 +49,10 @@ function AnimatedSection({ children, className }: { children: React.ReactNode; c
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      className={`transition-opacity duration-700 ${
+        isVisible ? "opacity-100" : "opacity-0"
       } ${className || ""}`}
+      style={{ willChange: "opacity" }}
     >
       {children}
     </div>
@@ -206,11 +208,13 @@ export default function PageContent() {
             </div>
 
             <AnimatedSection>
-              <div className="rounded-2xl overflow-hidden shadow-lg h-96">
-                <img
+              <div className="rounded-2xl overflow-hidden shadow-lg h-96 relative">
+                <Image
                   src="/images/569897459_122107554417056471_2994833732871230405_n.jpg"
                   alt="A-Thip House Pai guesthouse surrounded by nature"
-                  className="w-full h-full object-contain"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-contain"
                   loading="lazy"
                 />
               </div>

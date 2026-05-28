@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 
 interface LightboxProps {
   images: string[];
@@ -14,6 +15,8 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
   const [isAnimating, setIsAnimating] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [dragDownY, setDragDownY] = useState(0);
+  // Track which images have been loaded
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(() => new Set([initialIndex]));
   const thumbnailScrollRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const isDraggingDownRef = useRef(false);
@@ -36,6 +39,22 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
     setIsClosing(true);
     setTimeout(() => onClose(), 200);
   }, [onClose]);
+
+  // Mark image as loaded
+  const handleImageLoad = useCallback((index: number) => {
+    setLoadedImages((prev) => new Set(prev).add(index));
+  }, []);
+
+  // Preload adjacent images when currentIndex changes
+  useEffect(() => {
+    const prevIdx = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
+    const nextIdx = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
+    [prevIdx, currentIndex, nextIdx].forEach((idx) => {
+      const img = new window.Image();
+      img.src = images[idx];
+      img.onload = () => handleImageLoad(idx);
+    });
+  }, [currentIndex, images, handleImageLoad]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -86,10 +105,8 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
     const deltaX = e.targetTouches[0].clientX - touchStartRef.current.x;
     const deltaY = e.targetTouches[0].clientY - touchStartRef.current.y;
 
-    // If vertical movement is dominant and going downward → drag to dismiss
     if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > 0) {
       isDraggingDownRef.current = true;
-      // Apply rubber-band effect — the further you pull, the less it moves
       const rubberBand = deltaY * 0.4;
       setDragDownY(rubberBand);
     } else {
@@ -104,7 +121,6 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
     const deltaY = e.changedTouches[0].clientY - touchStartRef.current.y;
 
     if (isDraggingDownRef.current) {
-      // If dragged down enough → close
       if (deltaY > 100) {
         handleClose();
       }
@@ -113,7 +129,6 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
       return;
     }
 
-    // Horizontal swipe → navigate images
     if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
       if (deltaX < 0) handleNext();
       else handlePrev();
@@ -122,16 +137,19 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
     touchStartRef.current = null;
   };
 
-  // Tap on dark background (not image) to close
+  // Tap on dark background to close
   const handleImageAreaClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Only close if clicked directly on the container, not on the image or buttons
     if (e.target === e.currentTarget) {
       handleClose();
     }
   };
 
-  // Calculate opacity based on drag-down distance
   const dragOpacity = isClosing ? 0 : Math.max(0.3, 1 - dragDownY / 400);
+
+  // Determine which images to render: current + prev + next + any that are already loaded nearby
+  const prevIdx = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
+  const nextIdx = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
+  const renderIndices = [prevIdx, currentIndex, nextIdx];
 
   return (
     <div
@@ -144,16 +162,14 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
         transition: dragDownY === 0 ? "opacity 0.2s" : "none",
       }}
     >
-      {/* Top bar — with prominent close UX */}
+      {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-2 text-white shrink-0">
-        {/* Counter badge */}
         <div className="bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-full">
           <span className="text-sm font-semibold">
             {currentIndex + 1} / {images.length}
           </span>
         </div>
 
-        {/* Close button — large, obvious, with solid background */}
         <button
           onClick={handleClose}
           className="w-12 h-12 rounded-full bg-white/25 hover:bg-white/40 active:bg-white/50 flex items-center justify-center transition-all active:scale-90 backdrop-blur-sm"
@@ -165,14 +181,14 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
         </button>
       </div>
 
-      {/* Swipe down hint (only visible on mobile, fades out after first interaction) */}
+      {/* Swipe down hint */}
       {dragDownY > 30 && (
         <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-white/20 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full pointer-events-none animate-pulse">
           ↕ ปัดลงเพื่อปิด / Swipe down to close
         </div>
       )}
 
-      {/* Main image area — tap outside image to close */}
+      {/* Main image area */}
       <div
         className="flex-1 relative flex items-center justify-center min-h-0 px-4 md:px-12 cursor-pointer"
         onClick={handleImageAreaClick}
@@ -180,20 +196,34 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Image container with transition */}
         <div className="relative w-full h-full flex items-center justify-center pointer-events-none">
-          {images.map((image, index) => (
-            <img
+          {renderIndices.map((index) => (
+            <div
               key={index}
-              src={image}
-              alt={alts?.[index] || "Gallery image"}
-              className={`absolute max-w-full max-h-full object-contain transition-all duration-300 ease-in-out rounded-lg ${
+              className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ease-in-out ${
                 index === currentIndex
                   ? "opacity-100 scale-100"
                   : "opacity-0 scale-95"
               }`}
-              draggable={false}
-            />
+            >
+              {/* Loading spinner while image hasn't loaded */}
+              {!loadedImages.has(index) && index === currentIndex && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                </div>
+              )}
+              <img
+                src={images[index]}
+                alt={alts?.[index] || "Gallery image"}
+                className="max-w-full max-h-full object-contain rounded-lg"
+                style={{ 
+                  opacity: loadedImages.has(index) ? 1 : 0,
+                  transition: "opacity 0.3s"
+                }}
+                onLoad={() => handleImageLoad(index)}
+                draggable={false}
+              />
+            </div>
           ))}
         </div>
 
@@ -226,9 +256,8 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
         </button>
       </div>
 
-      {/* Bottom bar: tap to close hint + thumbnails */}
+      {/* Bottom bar: thumbnails */}
       <div className="shrink-0 px-4 pb-4 pt-2">
-        {/* Mobile close hint */}
         <div className="md:hidden flex justify-center mb-2">
           <button
             onClick={handleClose}
@@ -263,9 +292,12 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
                   : "border-white/20 opacity-40 hover:opacity-70"
               }`}
             >
-              <img
+              <Image
                 src={image}
                 alt={alts?.[index] || "Thumbnail"}
+                width={56}
+                height={56}
+                sizes="56px"
                 className="w-full h-full object-cover"
                 draggable={false}
               />

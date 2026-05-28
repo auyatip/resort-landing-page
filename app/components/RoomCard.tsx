@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 interface RoomCardProps {
   image: string;
@@ -27,10 +28,13 @@ export default function RoomCard({
       <div className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
         {/* Image Container with overlay */}
         <div className="relative h-96 bg-gray-300 overflow-hidden group">
-          <img 
+          <Image 
             src={image} 
             alt={name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+            className="object-cover group-hover:scale-110 transition-transform duration-500"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import Image from "next/image";
 import Lightbox from "./Lightbox";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../lib/translations";
@@ -29,7 +30,6 @@ const galleryImages = [
   { src: "/images/762705353.jpg", alt: "Air conditioned room with amenities at A-Thip House Pai" },
   { src: "/images/762705354.jpg", alt: "Comfortable bedroom at A-Thip House Pai" },
   { src: "/images/763355797.jpg", alt: "Well-appointed guest room at A-Thip House Pai" },
-  { src: "/images/763355803.jpg", alt: "Cozy accommodation room interior at A-Thip House" },
 
   // — Additional room & area photos —
   { src: "/images/IMG_2644.jpg", alt: "A-Thip House Pai guest room and facilities" },
@@ -118,6 +118,13 @@ export default function Gallery() {
     setLightboxOpen(true);
   };
 
+  // Only render current + prev + next images for mobile slider (instead of all 27)
+  const sliderIndices = useMemo(() => {
+    const prev = currentIndex === 0 ? galleryImages.length - 1 : currentIndex - 1;
+    const next = currentIndex === galleryImages.length - 1 ? 0 : currentIndex + 1;
+    return [prev, currentIndex, next];
+  }, [currentIndex]);
+
   return (
     <section id="gallery" className="section-padding bg-white">
       <div className="section-container">
@@ -139,17 +146,19 @@ export default function Gallery() {
               onTouchEnd={handleTouchEnd}
               onClick={() => openLightbox(currentIndex)}
             >
-              {galleryImages.map((image, index) => (
-                <img
+              {sliderIndices.map((index) => (
+                <Image
                   key={index}
-                  src={image.src}
-                  alt={image.alt}
+                  src={galleryImages[index].src}
+                  alt={galleryImages[index].alt}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 100vw"
                   className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-in-out ${
                     index === currentIndex
                       ? "opacity-100 scale-100"
                       : "opacity-0 scale-105"
                   }`}
-                  loading={index < 2 ? "eager" : "lazy"}
+                  priority={index === 0}
                 />
               ))}
 
@@ -159,7 +168,7 @@ export default function Gallery() {
                   e.stopPropagation();
                   goPrev();
                 }}
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 backdrop-blur-sm text-primary rounded-full w-9 h-9 flex items-center justify-center shadow-md active:scale-95 transition-transform"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 backdrop-blur-sm text-primary rounded-full w-9 h-9 flex items-center justify-center shadow-md active:scale-95 transition-transform z-10"
                 aria-label="Previous image"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,7 +182,7 @@ export default function Gallery() {
                   e.stopPropagation();
                   goNext();
                 }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 backdrop-blur-sm text-primary rounded-full w-9 h-9 flex items-center justify-center shadow-md active:scale-95 transition-transform"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 backdrop-blur-sm text-primary rounded-full w-9 h-9 flex items-center justify-center shadow-md active:scale-95 transition-transform z-10"
                 aria-label="Next image"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -220,11 +229,13 @@ export default function Gallery() {
               className="col-span-2 row-span-2 cursor-pointer group relative overflow-hidden"
               onClick={() => openLightbox(0)}
             >
-              <img
+              <Image
                 src={galleryImages[0].src}
                 alt={galleryImages[0].alt}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                loading="eager"
+                fill
+                sizes="(min-width: 768px) 50vw, 50vw"
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
+                priority
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
             </div>
@@ -236,10 +247,12 @@ export default function Gallery() {
                 className="cursor-pointer group relative overflow-hidden"
                 onClick={() => openLightbox(index + 1)}
               >
-                <img
+                <Image
                   src={image.src}
                   alt={image.alt}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  fill
+                  sizes="(min-width: 768px) 25vw, 25vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />

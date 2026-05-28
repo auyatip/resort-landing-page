@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -34,4 +32,15 @@ h1, h2, h3, h4, h5, h6 {
 
 .cta-secondary {
   @apply cta-button bg-accent text-primary hover:bg-opacity-90 border border-primary;
+}
+
+/* Performance: skip rendering off-screen sections until they're near viewport */
+#rooms,
+#gallery,
+#about,
+#reviews,
+#faq,
+#location {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
 }

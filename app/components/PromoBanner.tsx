@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../lib/translations";
 
@@ -32,10 +33,14 @@ export default function PromoBanner() {
             </a>
           </div>
           <div className="flex-1 max-w-sm">
-            <img
+            <Image
               src="/images/monthly_promote.png"
               alt="A-Thip House Pai Monthly Promotion"
+              width={400}
+              height={300}
+              sizes="(max-width: 768px) 100vw, 400px"
               className="w-full rounded-2xl shadow-2xl"
+              priority
             />
           </div>
         </div>
