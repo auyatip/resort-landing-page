@@ -6,20 +6,49 @@ import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../lib/translations";
 
 const galleryImages = [
+  // — Exterior & Nature views (first impression) —
   { src: "/images/571356702_122107554357056471_7702819512676027154_n.jpg", alt: "A-Thip House guesthouse exterior surrounded by nature in Pai" },
-  { src: "/images/570093910_122107554375056471_7287830858178467148_n.jpg", alt: "Cozy room interior with comfortable bed at A-Thip House Pai" },
-  { src: "/images/korea1.jpeg", alt: "Guest relaxing in the peaceful garden at A-Thip House" },
+  { src: "/images/568894149_122107554267056471_2090220231538691756_n.jpg", alt: "Beautiful view of A-Thip House surrounded by lush greenery in Pai" },
   { src: "/images/572413623_122107554537056471_1359709838975656868_n.jpg", alt: "Beautiful nature view from A-Thip House Pai guesthouse" },
+  { src: "/images/569579808_122107554459056471_2870940757230995704_n.jpg", alt: "Scenic mountain and nature view near A-Thip House Pai" },
+  { src: "/images/255210.jpg", alt: "Peaceful courtyard and nature at A-Thip House Pai Thailand" },
+
+  // — Cottage & Exterior details —
   { src: "/images/571205205_122107554495056471_2385969894286004164_n.jpg", alt: "Cottage style accommodation at A-Thip House Pai" },
+  { src: "/images/569897459_122107554417056471_2994833732871230405_n.jpg", alt: "Charming guesthouse exterior at A-Thip House Pai" },
+  { src: "/images/571366990_122107554687056471_170208840943873972_n.jpg", alt: "A-Thip House Pai beautiful guesthouse building" },
+
+  // — Outdoor & Garden areas —
+  { src: "/images/S__34668549_0.jpg", alt: "Outdoor seating area surrounded by greenery at A-Thip House" },
+  { src: "/images/korea1.jpeg", alt: "Guest relaxing in the peaceful garden at A-Thip House" },
+  { src: "/images/kore2.jpeg", alt: "Beautiful garden and outdoor area at A-Thip House Pai" },
+
+  // — Room interiors —
+  { src: "/images/570093910_122107554375056471_7287830858178467148_n.jpg", alt: "Cozy room interior with comfortable bed at A-Thip House Pai" },
   { src: "/images/762705357.jpg", alt: "Clean and cozy room at A-Thip House Pai Thailand" },
   { src: "/images/762705353.jpg", alt: "Air conditioned room with amenities at A-Thip House Pai" },
+  { src: "/images/762705354.jpg", alt: "Comfortable bedroom at A-Thip House Pai" },
+  { src: "/images/763355797.jpg", alt: "Well-appointed guest room at A-Thip House Pai" },
+  { src: "/images/763355803.jpg", alt: "Cozy accommodation room interior at A-Thip House" },
+
+  // — Additional room & area photos —
+  { src: "/images/IMG_2644.jpg", alt: "A-Thip House Pai guest room and facilities" },
+  { src: "/images/IMG_2646.jpg", alt: "Guest accommodation at A-Thip House Pai" },
+  { src: "/images/IMG_2661.jpg", alt: "Room detail at A-Thip House Pai Thailand" },
+  { src: "/images/IMG_2668.jpg", alt: "A-Thip House Pai interior view" },
+  { src: "/images/IMG_2676.jpg", alt: "Guesthouse room at A-Thip House Pai" },
+  { src: "/images/IMG_2677.jpg", alt: "Comfortable stay at A-Thip House Pai" },
+  { src: "/images/IMG_2687.jpg", alt: "Room amenities at A-Thip House Pai" },
+  { src: "/images/IMG_2689.jpg", alt: "A-Thip House Pai accommodation detail" },
+  { src: "/images/IMG_2746.jpg", alt: "Beautiful corner at A-Thip House Pai" },
+
+  // — Bathrooms —
   { src: "/images/762705359.jpg", alt: "Private bathroom with hot shower at A-Thip House" },
-  { src: "/images/toilet2.jpg", alt: "Private bathroom with hot shower at A-Thip House" },
-  { src: "/images/toilet3.jpg", alt: "Private bathroom with hot shower at A-Thip House" },
-  { src: "/images/toilet4.jpg", alt: "Private bathroom with hot shower at A-Thip House" },
-  { src: "/images/S__34668549_0.jpg", alt: "Outdoor seating area surrounded by greenery at A-Thip House" },
+  { src: "/images/toilet2.jpg", alt: "Clean private bathroom at A-Thip House" },
+  { src: "/images/toilet3.jpg", alt: "Modern bathroom facilities at A-Thip House Pai" },
+
+  // — Kitchen —
   { src: "/images/kitchen1.jpg", alt: "Shared kitchen facility at A-Thip House Pai" },
-  { src: "/images/255210.jpg", alt: "Peaceful courtyard and nature at A-Thip House Pai Thailand" },
 ];
 
 export default function Gallery() {
