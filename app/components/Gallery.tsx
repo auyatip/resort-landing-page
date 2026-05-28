@@ -9,7 +9,6 @@ import { translations } from "../lib/translations";
 const galleryImages = [
   // — Exterior & Nature views (first impression) —
   { src: "/images/571356702_122107554357056471_7702819512676027154_n.jpg", alt: "A-Thip House guesthouse exterior surrounded by nature in Pai" },
-  { src: "/images/568894149_122107554267056471_2090220231538691756_n.jpg", alt: "Beautiful view of A-Thip House surrounded by lush greenery in Pai" },
   { src: "/images/572413623_122107554537056471_1359709838975656868_n.jpg", alt: "Beautiful nature view from A-Thip House Pai guesthouse" },
   { src: "/images/569579808_122107554459056471_2870940757230995704_n.jpg", alt: "Scenic mountain and nature view near A-Thip House Pai" },
   { src: "/images/255210.jpg", alt: "Peaceful courtyard and nature at A-Thip House Pai Thailand" },
