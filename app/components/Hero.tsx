@@ -55,7 +55,7 @@ export default function Hero() {
         </p>
 
         {/* CTA */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
           <a
             href="#rooms"
             className="group relative px-8 py-4 bg-accent text-primary font-bold rounded-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 font-poppins overflow-hidden"
@@ -72,6 +72,20 @@ export default function Hero() {
           >
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></span>
             <span className="relative">{t.heroBookWhatsApp}</span>
+          </a>
+        </div>
+
+        {/* Pai Guide CTA */}
+        <div className="flex justify-center mb-16">
+          <a
+            href="/pai-guide"
+            className="group relative px-8 py-3 bg-white/15 backdrop-blur-md text-white font-semibold rounded-xl border border-white/30 hover:bg-white/25 transition-all duration-300 transform hover:scale-105 font-poppins flex items-center gap-2"
+          >
+            <span className="text-xl">🗺️</span>
+            <span>Explore Pai Travel Guide</span>
+            <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </a>
         </div>
 

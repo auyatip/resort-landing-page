@@ -44,3 +44,66 @@ h1, h2, h3, h4, h5, h6 {
   content-visibility: auto;
   contain-intrinsic-size: auto 500px;
 }
+
+/* ─── Pai Guide Article Styles ─── */
+.guide-article h2 {
+  @apply text-2xl md:text-3xl font-serif font-bold text-primary mt-12 mb-4 scroll-mt-24;
+}
+
+.guide-article h3 {
+  @apply text-xl md:text-2xl font-serif font-bold text-primary mt-8 mb-3;
+}
+
+.guide-article p {
+  @apply text-gray-700 leading-relaxed mb-4;
+}
+
+.guide-article ul {
+  @apply list-disc list-inside space-y-2 mb-6 text-gray-700;
+}
+
+.guide-article ol {
+  @apply list-decimal list-inside space-y-2 mb-6 text-gray-700;
+}
+
+.guide-article strong {
+  @apply text-darkText font-semibold;
+}
+
+.guide-article a {
+  @apply text-primary underline hover:text-primary/80 transition-colors;
+}
+
+.guide-article table {
+  @apply w-full border-collapse mb-8 text-sm;
+}
+
+.guide-article table thead {
+  @apply bg-primary/10;
+}
+
+.guide-article table th {
+  @apply px-4 py-3 text-left font-semibold text-primary;
+}
+
+.guide-article table td {
+  @apply px-4 py-3 border-b border-gray-200 text-gray-700;
+}
+
+.guide-article table tr:hover td {
+  @apply bg-gray-50;
+}
+
+.guide-food-card {
+  @apply bg-white border border-gray-200 rounded-xl p-5 my-4 shadow-sm hover:shadow-md transition-shadow;
+}
+.guide-food-card h4 {
+  @apply text-lg font-bold text-gray-900 mb-2;
+}
+.guide-tip {
+  @apply bg-accent/40 border-l-4 border-primary rounded-r-lg px-6 py-4 my-8;
+}
+
+.guide-article .guide-cta-button {
+  @apply inline-block px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors mt-4;
+}

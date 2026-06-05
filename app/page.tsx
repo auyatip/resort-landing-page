@@ -1,5 +1,6 @@
 import React from "react";
 import Hero from "./components/Hero";
+import Navbar from "./components/Navbar";
 import PageContent from "./components/PageContent";
 import Footer from "./components/Footer";
 import StickyBookingBar from "./components/StickyBookingBar";
@@ -22,6 +23,7 @@ export const metadata = {
 export default function Home() {
   return (
     <>
+      <Navbar />
       <Hero />
       <PageContent />
       <Footer />

@@ -253,6 +253,64 @@ export default function PageContent() {
         </div>
       </section>
 
+      {/* PAI GUIDE PROMO */}
+      <section className="section-padding bg-gradient-to-br from-primary/5 via-accent/10 to-primary/5">
+        <div className="section-container">
+          <AnimatedSection>
+            <div className="relative bg-white rounded-3xl shadow-xl overflow-hidden">
+              <div className="grid md:grid-cols-2 gap-0">
+                {/* Image Side */}
+                <div className="relative h-64 md:h-auto min-h-[300px]">
+                  <Image
+                    src="/Guide/Md_Mamun_Miah-Sun_set.jpg"
+                    alt="Stunning Pai sunset over mountains and rice fields"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/20 md:bg-gradient-to-l md:from-transparent md:to-white/60" />
+                </div>
+                {/* Content Side */}
+                <div className="p-8 md:p-12 flex flex-col justify-center">
+                  <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase w-fit">
+                    <span>🗺️</span> Written by Locals
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-serif font-bold text-primary mb-3">
+                    The Pai Travel Guide
+                  </h2>
+                  <p className="text-gray-600 mb-6 leading-relaxed">
+                    Discover the real Pai with our comprehensive travel guides. From 3-day itineraries to hidden waterfalls, scooter routes, the best food, and local secrets — everything you need to plan the perfect trip.
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                    {[
+                      { icon: "🏔️", label: "Itineraries" },
+                      { icon: "🌊", label: "Waterfalls" },
+                      { icon: "🍜", label: "Food Guide" },
+                      { icon: "🌅", label: "Sunset Spots" },
+                    ].map((item) => (
+                      <div key={item.label} className="flex flex-col items-center gap-1 p-2 bg-gray-50 rounded-lg">
+                        <span className="text-2xl">{item.icon}</span>
+                        <span className="text-xs text-gray-600 font-medium">{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <a
+                    href="/pai-guide"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 hover:shadow-lg transition-all duration-300 transform hover:scale-105 w-fit"
+                  >
+                    <span>Explore Pai Guide</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
+
       {/* FAQ */}
       <AnimatedSection>
         <FAQ />
