@@ -1,5 +1,6 @@
 import Link from "next/link";
 import "../globals.css";
+import VisitorTracker from "../components/VisitorTracker";
 
 export default function PaiGuideLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -42,6 +43,7 @@ export default function PaiGuideLayout({ children }: { children: React.ReactNode
       </nav>
 
       {/* Content */}
+      <VisitorTracker />
       <main>{children}</main>
 
       {/* Guide Footer */}
@@ -90,7 +92,7 @@ export default function PaiGuideLayout({ children }: { children: React.ReactNode
                   href="https://wa.me/66946765524?text=Hello%20I%20am%20interested%20in%20booking%20a%20room"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-green-300 hover:text-green-200 transition-colors"
+                  className="px-4 py-2 bg-green-500 text-white text-sm font-semibold rounded-lg hover:bg-green-600 transition-colors text-center"
                 >
                   💬 WhatsApp
                 </a>
@@ -98,20 +100,14 @@ export default function PaiGuideLayout({ children }: { children: React.ReactNode
                   href="https://lin.ee/TB4B1R9"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-300 hover:text-blue-200 transition-colors"
+                  className="px-4 py-2 bg-blue-500 text-white text-sm font-semibold rounded-lg hover:bg-blue-600 transition-colors text-center"
                 >
                   📱 LINE
-                </a>
-                <a
-                  href="tel:+66946765524"
-                  className="text-sm text-accent hover:text-accent/80 transition-colors"
-                >
-                  ☎️ +66 946 765 524
                 </a>
               </div>
             </div>
           </div>
-          <div className="border-t border-white/20 mt-8 pt-6 text-center text-sm text-white/50">
+          <div className="border-t border-white/20 mt-8 pt-6 text-center text-white/50 text-xs">
             © {new Date().getFullYear()} Athip House Pai. All rights reserved.
           </div>
         </div>
