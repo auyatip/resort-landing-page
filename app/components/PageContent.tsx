@@ -92,7 +92,7 @@ export default function PageContent() {
           <AnimatedSection>
             <div className="flex justify-center">
               <RoomCard
-                image="/images/762705354.jpg"
+                image="/images/room1.jpg"
                 name={t.roomName}
                 features={t.roomFeatures}
                 price="฿1,200 - ฿1,500 / night"
