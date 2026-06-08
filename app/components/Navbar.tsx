@@ -33,14 +33,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <span className={`text-xl font-serif font-bold transition-colors ${scrolled ? "text-primary" : "text-white"}`}>
-              A-Thip House
-            </span>
-            <span className={`hidden sm:inline text-xs font-poppins tracking-wider transition-colors ${scrolled ? "text-gray-500" : "text-white/70"}`}>
-              @ Pai
-            </span>
-          </Link>
+   
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-1">
