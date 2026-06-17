@@ -388,7 +388,7 @@ const guideDigitalNomad: GuideContent = {
     "Everything digital nomads need to know about Pai: internet speeds, best cafes to work from, cost of living, coworking spaces, and how to balance work with slow living in Northern Thailand.",
   metaDescription:
     "Complete digital nomad Pai guide: WiFi speeds, best work cafes, cost of living, monthly accommodation, visa tips, and remote work lifestyle in Pai, Thailand. Updated 2026.",
-  heroImage: "/images/IMG_2668.jpg",
+  heroImage: "/images/exterior5.jpg",
   heroImageAlt: "Peaceful workspace surrounded by nature in Pai",
   category: "Digital Nomad",
   cluster: "digital-nomad",

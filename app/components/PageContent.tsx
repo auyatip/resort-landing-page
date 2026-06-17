@@ -210,7 +210,7 @@ export default function PageContent() {
             <AnimatedSection>
               <div className="rounded-2xl overflow-hidden shadow-lg h-96 relative">
                 <Image
-                  src="/images/569897459_122107554417056471_2994833732871230405_n.jpg"
+                  src="/images/exterior1.jpg"
                   alt="A-Thip House Pai guesthouse surrounded by nature"
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
