@@ -59,6 +59,9 @@ export default function Footer() {
           <p className="mt-2 text-xs opacity-75">
             {t.footerCreated}
           </p>
+          <p className="mx-auto mt-4 max-w-3xl text-xs leading-relaxed opacity-60">
+            {t.footerPrivacy}
+          </p>
         </div>
       </div>
     </footer>

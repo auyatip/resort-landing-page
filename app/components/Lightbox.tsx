@@ -28,13 +28,19 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
 
   // Keyboard navigation (desktop)
   useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") handleClose();
       if (e.key === "ArrowLeft") handlePrev();
       if (e.key === "ArrowRight") handleNext();
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
   }, [handlePrev, handleNext, handleClose]);
 
   // Swipe support
@@ -63,54 +69,40 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-end md:items-center justify-center transition-opacity duration-200 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center p-3 md:p-8 transition-opacity duration-200 ${
         isClosing ? "opacity-0" : "opacity-100"
       }`}
       onClick={handleClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Image preview"
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
 
-      {/* Mobile: Bottom sheet / Desktop: Centered card */}
+      {/* Simple centered image viewer */}
       <div
-        className={`relative z-10 w-full md:max-w-3xl md:rounded-2xl rounded-t-2xl bg-white shadow-2xl flex flex-col transition-transform duration-200 ${
-          isClosing ? "translate-y-full md:scale-95" : "translate-y-0 md:scale-100"
+        className={`relative z-10 w-full max-w-5xl rounded-2xl bg-white shadow-2xl flex flex-col overflow-hidden transition-transform duration-200 ${
+          isClosing ? "scale-95 opacity-0" : "scale-100 opacity-100"
         }`}
         style={{ maxHeight: "92vh" }}
         onClick={(e) => e.stopPropagation()}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Drag handle (mobile) */}
-        <div className="flex justify-center pt-2 pb-1 md:hidden">
-          <div className="w-10 h-1 rounded-full bg-gray-300" />
-        </div>
-
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-2">
-          <span className="text-sm font-medium text-gray-400">
-            {currentIndex + 1} / {images.length}
+        <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 py-3 bg-gradient-to-b from-black/60 to-transparent">
+          <span className="text-sm font-semibold text-gray-500 tabular-nums">
+            <span className="text-white">{currentIndex + 1} / {images.length}</span>
           </span>
 
           <div className="flex items-center gap-1">
-            {/* Download */}
-            <button
-              onClick={() => downloadImage(images[currentIndex], alts?.[currentIndex])}
-              className="w-10 h-10 rounded-full hover:bg-gray-100 active:bg-gray-200 flex items-center justify-center transition-colors"
-              aria-label="Save image"
-            >
-              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-            </button>
-
-            {/* Close */}
             <button
               onClick={handleClose}
-              className="w-10 h-10 rounded-full hover:bg-gray-100 active:bg-gray-200 flex items-center justify-center transition-colors"
+              className="w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               aria-label="Close"
             >
-              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -118,22 +110,22 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
         </div>
 
         {/* Image */}
-        <div className="relative flex-1 min-h-0 flex items-center justify-center px-2">
+        <div className="relative flex-1 min-h-0 flex items-center justify-center bg-gray-950 px-3 py-12 md:px-12 md:py-10">
           <img
             key={currentIndex}
             src={images[currentIndex]}
             alt={alts?.[currentIndex] || "Gallery image"}
-            className="max-w-full max-h-[60vh] object-contain rounded-lg select-none"
+            className="max-w-full max-h-[62vh] md:max-h-[70vh] object-contain rounded-lg select-none animate-fade-in"
             draggable={false}
           />
         </div>
 
-        {/* Nav arrows + thumbnails row */}
-        <div className="flex items-center gap-2 px-2 py-3 border-t border-gray-100">
+        {/* Navigation */}
+        <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-3 md:px-5">
           {/* Prev arrow */}
           <button
             onClick={handlePrev}
-            className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center transition-colors"
+            className="pointer-events-auto w-11 h-11 rounded-full bg-white/90 hover:bg-white shadow-lg flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             aria-label="Previous"
           >
             <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,35 +133,10 @@ export default function Lightbox({ images, alts, initialIndex, onClose }: Lightb
             </svg>
           </button>
 
-          {/* Thumbnails */}
-          <div
-            className="flex-1 flex gap-1.5 overflow-x-auto py-1 justify-center"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {images.map((image, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`flex-shrink-0 w-11 h-11 rounded-lg overflow-hidden transition-all duration-200 border-2 ${
-                  index === currentIndex
-                    ? "border-primary ring-2 ring-primary/20"
-                    : "border-transparent opacity-40 hover:opacity-70"
-                }`}
-              >
-                <img
-                  src={image}
-                  alt=""
-                  className="w-full h-full object-cover"
-                  draggable={false}
-                />
-              </button>
-            ))}
-          </div>
-
           {/* Next arrow */}
           <button
             onClick={handleNext}
-            className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 flex items-center justify-center transition-colors"
+            className="pointer-events-auto w-11 h-11 rounded-full bg-white/90 hover:bg-white shadow-lg flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             aria-label="Next"
           >
             <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

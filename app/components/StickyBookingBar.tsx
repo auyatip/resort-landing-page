@@ -26,11 +26,11 @@ export default function StickyBookingBar() {
   return (
     <>
       {show && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-2xl z-40 md:hidden animate-slide-up">
-          <div className="max-w-lg mx-auto px-4 py-2 flex gap-2 justify-center">
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t border-gray-200 shadow-2xl z-40 md:hidden animate-slide-up pb-[env(safe-area-inset-bottom)]">
+          <div className="max-w-lg mx-auto px-3 py-3 flex gap-2 justify-center">
             <a
               href={phoneLink}
-              className="flex-1 cta-primary text-center text-sm py-1"
+              className="flex-1 cta-primary text-center text-xs py-3"
               title="Call now"
             >
               📞 {t.stickyCall}
@@ -39,7 +39,7 @@ export default function StickyBookingBar() {
               href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 cta-primary text-center text-sm py-2 bg-green-500 hover:bg-green-600"
+              className="flex-1 cta-primary text-center text-xs py-3 bg-[#25D366] hover:bg-[#1fba59]"
               title="WhatsApp"
             >
               {t.stickyWhatsApp}
@@ -48,7 +48,7 @@ export default function StickyBookingBar() {
               href={lineLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 cta-primary text-center text-sm py-2 bg-blue-500 hover:bg-blue-600"
+              className="flex-1 cta-primary text-center text-xs py-3 bg-blue-500 hover:bg-blue-600"
               title="LINE"
             >
               📱 {t.stickyLINE}

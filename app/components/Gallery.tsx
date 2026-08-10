@@ -168,8 +168,8 @@ export default function Gallery() {
         </p>
 
         {/* ========== Category Filter Tabs ========== */}
-        <div className="flex justify-center mb-6 md:mb-10">
-          <div className="flex flex-wrap justify-center gap-2">
+        <div className="mb-6 md:mb-10 overflow-x-auto pb-1">
+          <div className="flex w-max min-w-full justify-start md:justify-center gap-2 px-1">
             {categoryConfig.map(({ key, emoji }) => {
               const count = key === "all"
                 ? galleryImages.length
@@ -178,7 +178,7 @@ export default function Gallery() {
                 <button
                   key={key}
                   onClick={() => setActiveCategory(key)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  className={`flex items-center gap-1.5 min-h-11 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
                     activeCategory === key
                       ? "bg-primary text-white shadow-lg shadow-primary/25 scale-105"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:scale-102"
@@ -204,7 +204,7 @@ export default function Gallery() {
           <div className="relative">
             {/* Main slider image */}
             <div
-              className="relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer shadow-lg"
+              className="relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer shadow-lg ring-1 ring-black/5"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -267,35 +267,27 @@ export default function Gallery() {
               </div>
             </div>
 
-            {/* Dot indicators */}
-            <div className="flex justify-center items-center gap-1.5 mt-3 flex-wrap">
-              {filteredImages.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => goTo(index)}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    index === currentIndex
-                      ? "bg-primary w-4"
-                      : "bg-gray-300 w-1.5 hover:bg-gray-400"
-                  }`}
-                  aria-label={`Go to image ${index + 1}`}
-                />
-              ))}
+            {/* Compact progress indicator for large galleries */}
+            <div className="mt-4 flex items-center gap-3">
+              <div className="h-1.5 flex-1 rounded-full bg-gray-200 overflow-hidden">
+                <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${((currentIndex + 1) / filteredImages.length) * 100}%` }} />
+              </div>
+              <span className="text-xs font-medium text-gray-500 tabular-nums">{currentIndex + 1} / {filteredImages.length}</span>
             </div>
           </div>
         </div>
 
         {/* ========== Desktop Grid (md+) ========== */}
         <div className="hidden md:block">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 auto-rows-[150px] lg:auto-rows-[170px]">
             {filteredImages.map((image, index) => (
               <div
                 key={image.src}
                 className={`cursor-pointer group relative overflow-hidden rounded-xl ${
                   // Make first image larger when showing all
                   activeCategory === "all" && index === 0
-                    ? "col-span-2 row-span-2 aspect-square"
-                    : "aspect-[4/3]"
+                    ? "col-span-2 row-span-2"
+                    : "row-span-1"
                 }`}
                 onClick={() => openLightbox(index)}
               >

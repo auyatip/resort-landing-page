@@ -16,7 +16,7 @@ export default function Hero() {
 
   return (
      <section
-      className="relative h-screen md:h-[700px] bg-cover bg-center flex items-center justify-center overflow-hidden"
+      className="relative min-h-[680px] md:h-[760px] bg-cover bg-center flex items-center justify-center overflow-hidden"
       style={{
   backgroundImage:
     "linear-gradient(135deg, rgba(45, 80, 22, 0.48) 0%, rgba(45, 80, 22, 0.32) 100%), url('/images/570093910_122107554375056471_7287830858178467148_n.jpg')",
@@ -30,9 +30,9 @@ export default function Hero() {
       {/* Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/25"></div>
 
-      <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto animate-fade-in">
+      <div className="relative z-10 text-center text-white px-5 max-w-5xl mx-auto pt-10 animate-fade-in">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 mb-8 px-5 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/25">
+        <div className="inline-flex items-center gap-2 mb-6 px-5 py-2 bg-black/20 backdrop-blur-md rounded-full border border-white/30">
           <span className="text-xs md:text-sm font-poppins font-medium tracking-wider uppercase">
             ✨ {t.heroBadge}
           </span>
@@ -40,7 +40,7 @@ export default function Hero() {
 
         {/* Title */}
         <h1 className="font-serif">
-          <span className="block text-6xl md:text-7xl lg:text-8xl font-black text-white drop-shadow-2xl leading-tight mb-2">
+          <span className="block text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white drop-shadow-2xl leading-tight mb-2">
             A-Thip House
           </span>
           <div className="h-1 w-20 bg-gradient-to-r from-accent via-accent to-transparent mx-auto my-4 rounded-full"></div>
@@ -50,15 +50,15 @@ export default function Hero() {
         <p className="text-base md:text-xl text-white/85 mb-3 font-poppins font-light tracking-wide drop-shadow-lg">
           {t.heroTagline}
         </p>
-        <p className="text-xs md:text-sm text-white/70 mb-12 font-poppins tracking-widest uppercase">
+        <p className="text-xs md:text-sm text-white/80 mb-8 font-poppins tracking-widest uppercase">
           {t.heroLocation}
         </p>
 
         {/* CTA */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-5">
           <a
             href="#rooms"
-            className="group relative px-8 py-4 bg-accent text-primary font-bold rounded-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 font-poppins overflow-hidden"
+            className="group relative px-8 py-4 bg-accent text-primary font-bold rounded-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] font-poppins overflow-hidden shadow-lg"
           >
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></span>
             <span className="relative">{t.heroCheckAvailability}</span>
@@ -68,7 +68,7 @@ export default function Hero() {
             href={whatsappLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative px-8 py-4 bg-green-500 text-white font-bold rounded-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 font-poppins overflow-hidden"
+            className="group relative px-8 py-4 bg-[#25D366] text-white font-bold rounded-xl hover:bg-[#1fba59] hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] font-poppins overflow-hidden"
           >
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></span>
             <span className="relative">{t.heroBookWhatsApp}</span>
@@ -76,7 +76,7 @@ export default function Hero() {
         </div>
 
         {/* Pai Guide CTA */}
-        <div className="flex justify-center mb-16">
+        <div className="flex justify-center mb-10">
           <a
             href="/pai-guide"
             className="group relative px-8 py-3 bg-white/15 backdrop-blur-md text-white font-semibold rounded-xl border border-white/30 hover:bg-white/25 transition-all duration-300 transform hover:scale-105 font-poppins flex items-center gap-2"
@@ -90,7 +90,7 @@ export default function Hero() {
         </div>
 
         {/* Scroll */}
-        <div className="mt-16 flex flex-col items-center gap-3">
+        <div className="mt-8 flex flex-col items-center gap-3">
           <p className="text-xs md:text-sm text-white/65 font-poppins tracking-wider">
             {t.heroScroll}
           </p>

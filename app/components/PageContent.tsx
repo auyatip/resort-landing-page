@@ -5,7 +5,6 @@ import Image from "next/image";
 import RoomCard from "./RoomCard";
 import ReviewCard from "./ReviewCard";
 import Gallery from "./Gallery";
-import PromoBanner from "./PromoBanner";
 import FAQ from "./FAQ";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../lib/translations";
@@ -72,10 +71,31 @@ export default function PageContent() {
 
   return (
     <>
-      {/* PROMO BANNER */}
-      <AnimatedSection>
-        <PromoBanner />
-      </AnimatedSection>
+      {/* STAY AT A GLANCE */}
+      <section className="bg-primary text-white px-4 py-10 md:py-14">
+        <div className="section-container">
+          <AnimatedSection>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
+              <div>
+                <div className="text-3xl md:text-4xl font-serif font-bold text-accent">2.3 km</div>
+                <p className="mt-2 text-sm text-white/75">from Pai town</p>
+              </div>
+              <div>
+                <div className="text-3xl md:text-4xl font-serif font-bold text-accent">24/7</div>
+                <p className="mt-2 text-sm text-white/75">direct support</p>
+              </div>
+              <div>
+                <div className="text-3xl md:text-4xl font-serif font-bold text-accent">Fast WiFi</div>
+                <p className="mt-2 text-sm text-white/75">remote-work ready</p>
+              </div>
+              <div>
+                <div className="text-3xl md:text-4xl font-serif font-bold text-accent">Long stays</div>
+                <p className="mt-2 text-sm text-white/75">monthly rates available</p>
+              </div>
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
 
       {/* ROOMS */}
       <section id="rooms" className="section-padding bg-light">

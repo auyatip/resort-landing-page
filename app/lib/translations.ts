@@ -90,6 +90,9 @@ export const translations = {
     footerCreated:
       "Created with care for travelers seeking peace and comfort.",
 
+    footerPrivacy:
+      "We use analytics to understand visits and improve the website. Technical data such as IP address, device, and referrer may be collected and is not used to identify you directly.",
+
     // Promo Banner
     promoTag: "Special Offer",
     promoTitle: "Monthly Stay Special Deal",
@@ -207,6 +210,9 @@ export const translations = {
       "2.3 กม. จากศูนย์กลางเมืองปาย เหมาะสำหรับการพักระยะยาวและ digital nomad",
     footerCopyright: "สงวนลิขสิทธิ์",
     footerCreated: "สร้างด้วยความห่วงใย สำหรับผู้เยี่ยมชมที่ต้องการความสงบสุข",
+
+    footerPrivacy:
+      "เราใช้ข้อมูลสถิติเพื่อทำความเข้าใจการเข้าชมและปรับปรุงเว็บไซต์ อาจมีการเก็บข้อมูลทางเทคนิค เช่น IP อุปกรณ์ และแหล่งที่มา โดยไม่ใช้เพื่อระบุตัวตนของคุณโดยตรง",
 
     // Promo Banner
     promoTag: "โปรโมชั่นพิเศษ",

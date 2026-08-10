@@ -11,5 +11,9 @@ yarn-error.log*
 out/
 build/
 
+# Agent tooling
+.agents/
+skills-lock.json
+
 # Upstash Redis env vars (privacy)
 .env.local
