@@ -32,10 +32,21 @@ export default function BookingPage() {
   const rows = pricing.rates.map((rate, index) => ({ rate, date: new Date(new Date(form.checkIn + "T00:00:00Z").getTime() + index * 86400000).toISOString().slice(0, 10) }));
 
   useEffect(() => {
+    let cancelled = false;
+    fetch("/api/bookings")
+      .then((response) => response.json())
+      .then((data) => {
+        if (!cancelled && data.bookingOpen === false) window.location.replace("/");
+      })
+      .catch(() => undefined);
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
     if (pricing.nights < 1) { setAvailableRooms(null); return; }
     let cancelled = false;
     setChecking(true);
-    fetch("/api/bookings?checkIn=" + form.checkIn + "&checkOut=" + form.checkOut).then((response) => response.json()).then((data) => { if (!cancelled) { setAvailableRooms(data.availableRooms ?? 0); setBookingOpen(data.bookingOpen !== false); } }).catch(() => { if (!cancelled) setAvailableRooms(null); }).finally(() => { if (!cancelled) setChecking(false); });
+    fetch("/api/bookings?checkIn=" + form.checkIn + "&checkOut=" + form.checkOut).then((response) => response.json()).then((data) => { if (!cancelled) { if (data.bookingOpen === false) { window.location.replace("/"); return; } setAvailableRooms(data.availableRooms ?? 0); setBookingOpen(true); } }).catch(() => { if (!cancelled) setAvailableRooms(null); }).finally(() => { if (!cancelled) setChecking(false); });
     return () => { cancelled = true; };
   }, [form.checkIn, form.checkOut, pricing.nights]);
 
