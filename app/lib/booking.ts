@@ -8,7 +8,7 @@ export const NIGHTLY_RATES_THB = {
   january: 850,
   february: 850,
   march: 700,
-  september: 700,
+  september: 550,
   october: 750,
   november: 850,
   december: 900,
