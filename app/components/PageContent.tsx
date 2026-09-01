@@ -113,9 +113,17 @@ export default function PageContent() {
             <div className="flex justify-center">
               <RoomCard
                 image="/images/room1.jpg"
+                galleryImages={[
+                  "/images/room1.jpg",
+                  "/images/room2.jpg",
+                  "/images/room3.jpg",
+                  "/images/room4.jpg",
+                  "/images/bathroom1.jpg",
+                  "/images/bathroom2.jpg",
+                ]}
                 name={t.roomName}
                 features={t.roomFeatures}
-                price="฿1,200 - ฿1,500 / night"
+                price="฿550 - ฿990 / night"
                 amenitiesLabel={t.roomAmenities}
                 bookLineText={t.roomBookLine}
                 bookWhatsAppText={t.roomBookWhatsApp}

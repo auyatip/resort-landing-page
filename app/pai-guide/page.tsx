@@ -67,7 +67,7 @@ export default function PaiGuidePage() {
       <section className="max-w-4xl mx-auto px-4 md:px-8 py-12 text-center">
         <h2 className="text-2xl md:text-3xl font-serif font-bold text-primary mb-4">Welcome to Pai</h2>
         <p className="text-gray-700 text-lg leading-relaxed max-w-3xl mx-auto">
-          Nestled in a valley in Northern Thailand's Mae Hong Son province, Pai is a small town that captures hearts. Surrounded by mountains, hot springs, waterfalls, and rice paddies, Pai offers the perfect blend of adventure and relaxation. Our local team has put together these guides to help you experience the very best of Pai.
+          Nestled in a valley in Northern Thailand&apos;s Mae Hong Son province, Pai is a small town that captures hearts. Surrounded by mountains, hot springs, waterfalls, and rice paddies, Pai offers the perfect blend of adventure and relaxation. Our local team has put together these guides to help you experience the very best of Pai.
         </p>
       </section>
 

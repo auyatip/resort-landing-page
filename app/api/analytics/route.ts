@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
+import { isAdminAuthorized } from "../../lib/admin-auth";
+import { Booking, expireUnpaidBookings } from "../../lib/booking";
 
 const redis = Redis.fromEnv();
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "athip2024";
+export const dynamic = "force-dynamic";
 
 interface Visitor {
   id: string;
@@ -18,16 +20,33 @@ interface Visitor {
   lastActive: string;
 }
 
+interface BookingRecord {
+  id: string;
+  roomNumber?: number;
+  guestName: string;
+  email?: string;
+  phone?: string;
+  checkIn: string;
+  checkOut: string;
+  nights: number;
+  amount: number;
+  bookingStatus: string;
+  paymentStatus: string;
+  createdAt: string;
+}
+
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization");
-    const token = authHeader?.replace("Bearer ", "");
-
-    if (token !== ADMIN_PASSWORD) {
+    if (!isAdminAuthorized(request)) {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
 
     const visitors: Visitor[] = (await redis.get("visitors")) || [];
+    const storedBookings: Booking[] = (await redis.get("bookings")) || [];
+    const expired = expireUnpaidBookings(storedBookings);
+    if (expired.changed) await redis.set("bookings", expired.bookings);
+    const bookings: BookingRecord[] = expired.bookings;
+    const bookingSettings = (await redis.get<{ bookingOpen?: boolean; openRooms?: number[]; closures?: { id: string; roomNumber: number; checkIn: string; checkOut: string; note?: string }[] }>("booking-settings")) || { bookingOpen: true, openRooms: [1, 2, 3, 4, 5], closures: [] };
     const now = new Date();
     const todayStr = now.toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok" });
 
@@ -136,6 +155,10 @@ export async function GET(request: NextRequest) {
         topPages,
         deviceCount,
         recentVisitors,
+        bookings: bookings.slice().reverse().slice(0, 100),
+        bookingOpen: bookingSettings.bookingOpen !== false,
+        openRooms: bookingSettings.openRooms || [1, 2, 3, 4, 5],
+        closures: bookingSettings.closures || [],
       },
     });
   } catch (error) {

@@ -34,6 +34,14 @@ h1, h2, h3, h4, h5, h6 {
   @apply cta-button bg-accent text-primary hover:bg-opacity-90 border border-primary;
 }
 
+label {
+  @apply block text-sm font-semibold text-primary;
+}
+
+label input {
+  @apply mt-2 block w-full rounded-xl border border-gray-200 bg-white px-4 py-3 font-normal text-gray-800 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20;
+}
+
 /* Performance: skip rendering off-screen sections until they're near viewport */
 #rooms,
 #about,

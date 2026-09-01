@@ -17,3 +17,5 @@ skills-lock.json
 
 # Upstash Redis env vars (privacy)
 .env.local
+.env*
+!.env.example

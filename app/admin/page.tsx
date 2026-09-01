@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 
 interface AnalyticsData {
   totalVisits: number;
@@ -23,6 +24,25 @@ interface AnalyticsData {
     durationMinutes: number;
     device: string;
   }[];
+  bookings: {
+    id: string;
+    roomNumber?: number;
+    roomNumbers?: number[];
+    rooms?: number;
+    guestName: string;
+    email?: string;
+    phone?: string;
+    checkIn: string;
+    checkOut: string;
+    nights: number;
+    amount: number;
+    bookingStatus: string;
+    paymentStatus: string;
+    createdAt: string;
+  }[];
+  bookingOpen: boolean;
+  openRooms: number[];
+  closures: { id: string; roomNumber: number; checkIn: string; checkOut: string; note?: string }[];
 }
 
 export default function AdminPage() {
@@ -31,14 +51,13 @@ export default function AdminPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [closureForm, setClosureForm] = useState({ roomNumber: 1, checkIn: "", checkOut: "", note: "" });
 
-  const fetchData = useCallback(async (pwd: string) => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/analytics", {
-        headers: { Authorization: `Bearer ${pwd}` },
-      });
+      const res = await fetch("/api/analytics");
       const json = await res.json();
       if (json.success) {
         setData(json.data);
@@ -52,24 +71,86 @@ export default function AdminPage() {
     setLoading(false);
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    const response = await fetch("/api/admin/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password }) });
+    if (!response.ok) { setError("รหัสผ่านไม่ถูกต้อง ❌"); return; }
     setIsAuthenticated(true);
-    fetchData(password);
+    fetchData();
   };
 
   const handleRefresh = () => {
-    fetchData(password);
+    fetchData();
   };
+
+  const saveBookingSettings = async (bookingOpen: boolean, openRooms: number[], closures = data?.closures || []) => {
+    if (!data) return;
+    const response = await fetch("/api/booking-settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bookingOpen, openRooms, closures }),
+    });
+    if (response.ok) setData({ ...data, bookingOpen, openRooms, closures });
+  };
+
+  const toggleBookings = async () => {
+    if (!data) return;
+    await saveBookingSettings(!data.bookingOpen, data.openRooms);
+  };
+
+  const toggleRoom = async (roomNumber: number) => {
+    if (!data) return;
+    const openRooms = data.openRooms.includes(roomNumber)
+      ? data.openRooms.filter((room) => room !== roomNumber)
+      : [...data.openRooms, roomNumber].sort((a, b) => a - b);
+    await saveBookingSettings(data.bookingOpen, openRooms);
+  };
+
+  const addClosure = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!data || !closureForm.checkIn || !closureForm.checkOut || closureForm.checkIn >= closureForm.checkOut) return;
+    const closure = { id: `C-${Date.now().toString(36)}`, ...closureForm };
+    await saveBookingSettings(data.bookingOpen, data.openRooms, [...data.closures, closure]);
+    setClosureForm({ roomNumber: 1, checkIn: "", checkOut: "", note: "" });
+  };
+
+  const removeClosure = async (id: string) => {
+    if (!data) return;
+    await saveBookingSettings(data.bookingOpen, data.openRooms, data.closures.filter((closure) => closure.id !== id));
+  };
+
+  const cancelBooking = async (bookingId: string, refund: boolean) => {
+    if (!data || !window.confirm(refund ? "ยืนยันยกเลิกและคืนเงิน booking นี้?" : "ยืนยันยกเลิก booking นี้?")) return;
+    const response = await fetch("/api/admin/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bookingId, action: refund ? "refund" : "cancel" }),
+    });
+    const result = await response.json();
+    if (response.ok) setData({ ...data, bookings: data.bookings.map((booking) => booking.id === bookingId ? result.booking : booking) });
+    else setError(result.message || "ไม่สามารถยกเลิก booking ได้");
+  };
+
+  useEffect(() => {
+    fetch("/api/admin/auth")
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.authenticated) {
+          setIsAuthenticated(true);
+          fetchData();
+        }
+      })
+      .catch(() => undefined);
+  }, [fetchData]);
 
   useEffect(() => {
     if (isAuthenticated) {
       const interval = setInterval(() => {
-        fetchData(password);
+        fetchData();
       }, 60000); // Auto refresh every minute
       return () => clearInterval(interval);
     }
-  }, [isAuthenticated, password, fetchData]);
+  }, [isAuthenticated, fetchData]);
 
   // Login screen
   if (!isAuthenticated) {
@@ -119,6 +200,7 @@ export default function AdminPage() {
       <div className="bg-black/30 border-b border-white/10 sticky top-0 z-10 backdrop-blur-lg">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
+            <Link href="/admin/rooms" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-500">จัดการห้องพัก</Link>
             <span className="text-2xl">🏡</span>
             <div>
               <h1 className="font-bold text-lg">A-Thip House Analytics</h1>
@@ -126,6 +208,12 @@ export default function AdminPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={toggleBookings}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${data?.bookingOpen ? "bg-green-600 hover:bg-green-500" : "bg-red-600 hover:bg-red-500"}`}
+            >
+              {data?.bookingOpen ? "รับจองอยู่ · ปิดรับจอง" : "ปิดรับจองอยู่ · เปิดรับจอง"}
+            </button>
             <span className="text-xs text-gray-400">
               อัปเดตล่าสุด: {new Date().toLocaleTimeString("th-TH")}
             </span>
@@ -138,6 +226,7 @@ export default function AdminPage() {
             </button>
             <button
               onClick={() => {
+                fetch("/api/admin/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "logout" }) });
                 setIsAuthenticated(false);
                 setPassword("");
                 setData(null);
@@ -150,7 +239,34 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+            <div><h2 className="font-semibold text-white">Room sales</h2><p className="mt-1 text-xs text-gray-400">เปิด/ปิดขายรายห้องได้เอง ห้องที่มี booking เดิมยังไม่ถูกยกเลิก</p></div>
+            <div className="flex flex-wrap gap-2">
+              {[1, 2, 3, 4, 5].map((room) => {
+                const isOpen = data?.openRooms.includes(room);
+                return <button key={room} onClick={() => toggleRoom(room)} className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${isOpen ? "bg-green-600 hover:bg-green-500" : "bg-gray-700 text-gray-400 hover:bg-gray-600"}`}>ห้อง {room}: {isOpen ? "เปิดขาย" : "ปิดขาย"}</button>;
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+          <h2 className="font-semibold text-white">ปิดขายตามช่วงวันที่</h2>
+          <p className="mt-1 text-xs text-gray-400">เลือกห้องและวันที่ที่ต้องการปิดขาย เช่น ซ่อมแซมหรือกันไว้ใช้งานเอง</p>
+          <form onSubmit={addClosure} className="mt-4 grid gap-3 md:grid-cols-[120px_1fr_1fr_1fr_auto] md:items-end">
+            <label className="text-xs text-gray-300">ห้อง<select value={closureForm.roomNumber} onChange={(event) => setClosureForm({ ...closureForm, roomNumber: Number(event.target.value) })} className="mt-1 w-full rounded-lg bg-gray-800 px-3 py-2 text-sm text-white"><option value={1}>ห้อง 1</option><option value={2}>ห้อง 2</option><option value={3}>ห้อง 3</option><option value={4}>ห้อง 4</option><option value={5}>ห้อง 5</option></select></label>
+            <label className="text-xs text-gray-300">เริ่มปิด<input required type="date" value={closureForm.checkIn} onChange={(event) => setClosureForm({ ...closureForm, checkIn: event.target.value })} className="mt-1 w-full rounded-lg bg-gray-800 px-3 py-2 text-sm text-white" /></label>
+            <label className="text-xs text-gray-300">เปิดกลับ<input required type="date" min={closureForm.checkIn} value={closureForm.checkOut} onChange={(event) => setClosureForm({ ...closureForm, checkOut: event.target.value })} className="mt-1 w-full rounded-lg bg-gray-800 px-3 py-2 text-sm text-white" /></label>
+            <label className="text-xs text-gray-300">หมายเหตุ<input value={closureForm.note} placeholder="เช่น ปรับปรุงห้อง" onChange={(event) => setClosureForm({ ...closureForm, note: event.target.value })} className="mt-1 w-full rounded-lg bg-gray-800 px-3 py-2 text-sm text-white" /></label>
+            <button className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500">เพิ่ม</button>
+          </form>
+          <div className="mt-4 space-y-2">{data?.closures.map((closure) => <div key={closure.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-black/20 px-3 py-2 text-sm"><span className="text-gray-200">ห้อง {closure.roomNumber} · {closure.checkIn} ถึง {closure.checkOut}{closure.note ? ` · ${closure.note}` : ""}</span><button onClick={() => removeClosure(closure.id)} className="text-xs font-semibold text-red-300 hover:text-red-200">ยกเลิกการปิดขาย</button></div>)}{data?.closures.length === 0 && <p className="text-xs text-gray-500">ยังไม่มีช่วงวันที่ปิดขาย</p>}</div>
+        </div>
+
+        <BookingTable bookings={data?.bookings || []} onCancel={cancelBooking} />
+
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <StatCard
@@ -349,11 +465,72 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* Legacy booking table moved above */}
+        <div className="hidden bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+          <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+            <div>
+              <h3 className="text-sm text-gray-300">Bookings</h3>
+              <p className="text-xs text-gray-500 mt-1">Latest 100 reservations</p>
+            </div>
+            <span className="text-xs text-gray-500">5 rooms</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-gray-400 border-b border-white/10">
+                  <th className="px-4 py-3 text-left font-medium">Guest</th>
+                  <th className="px-4 py-3 text-left font-medium">Stay</th>
+                  <th className="px-4 py-3 text-left font-medium">Room</th>
+                  <th className="px-4 py-3 text-left font-medium">Contact</th>
+                  <th className="px-4 py-3 text-right font-medium">Amount</th>
+                  <th className="px-4 py-3 text-left font-medium">Status</th>
+                  <th className="px-4 py-3 text-right font-medium">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data?.bookings.map((booking) => (
+                  <tr key={booking.id} className="border-b border-white/5 hover:bg-white/5">
+                    <td className="px-4 py-3"><div className="text-gray-200">{booking.guestName}</div><div className="text-[11px] text-gray-500 font-mono">{booking.id}</div></td>
+                    <td className="px-4 py-3 text-gray-300 whitespace-nowrap">{booking.checkIn} → {booking.checkOut}<div className="text-xs text-gray-500">{booking.nights} night{booking.nights === 1 ? "" : "s"}</div></td>
+                    <td className="px-4 py-3 text-gray-300">#{booking.roomNumber || "—"}</td>
+                    <td className="px-4 py-3 text-gray-400">{booking.phone || booking.email || "—"}</td>
+                    <td className="px-4 py-3 text-right text-gray-200">฿{booking.amount.toLocaleString()}</td>
+                    <td className="px-4 py-3 whitespace-nowrap"><span className={`rounded-full px-2 py-1 text-xs ${booking.paymentStatus === "paid" ? "bg-green-500/20 text-green-300" : booking.paymentStatus === "refunded" ? "bg-blue-500/20 text-blue-300" : booking.bookingStatus === "cancelled" ? "bg-red-500/20 text-red-300" : "bg-amber-500/20 text-amber-300"}`}>{booking.paymentStatus === "paid" ? "Paid" : booking.paymentStatus === "refunded" ? "Refunded" : booking.bookingStatus === "cancelled" ? "Cancelled" : "Pending"}</span></td>
+                    <td className="px-4 py-3 text-right">{booking.bookingStatus !== "cancelled" && <button onClick={() => cancelBooking(booking.id, booking.paymentStatus === "paid")} className="text-xs font-semibold text-red-300 hover:text-red-200">{booking.paymentStatus === "paid" ? "Cancel & refund" : "Cancel"}</button>}</td>
+                  </tr>
+                ))}
+                {(!data || data.bookings.length === 0) && <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">No bookings yet</td></tr>}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         {/* Footer */}
         <div className="text-center text-gray-600 text-xs py-4">
           🔒 Private Dashboard — A-Thip House @ Pai
         </div>
       </div>
+    </div>
+  );
+}
+
+function BookingTable({ bookings: allBookings, onCancel }: { bookings: AnalyticsData["bookings"]; onCancel: (bookingId: string, refund: boolean) => void }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+  const totalPages = Math.max(1, Math.ceil(allBookings.length / pageSize));
+  const page = Math.min(currentPage, totalPages);
+  const roomCount = (booking: AnalyticsData["bookings"][number]) => booking.rooms || booking.roomNumbers?.length || 1;
+  const bookings = allBookings.slice((page - 1) * pageSize, page * pageSize).map((booking) => ({ ...booking, nights: (roomCount(booking) + " rooms · " + booking.nights) as unknown as number }));
+  return (
+    <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+      <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
+        <div><h3 className="text-sm text-gray-300">Bookings</h3><p className="text-xs text-gray-500 mt-1">Latest 100 reservations</p></div>
+        <div className="flex items-center gap-2"><span className="text-xs text-gray-500">5 rooms</span><button type="button" disabled={page === 1} onClick={() => setCurrentPage((value) => Math.max(1, value - 1))} className="rounded border border-white/10 px-2 py-1 text-xs disabled:opacity-40">Previous</button><span className="text-xs text-gray-400">{page} / {totalPages}</span><button type="button" disabled={page === totalPages} onClick={() => setCurrentPage((value) => Math.min(totalPages, value + 1))} className="rounded border border-white/10 px-2 py-1 text-xs disabled:opacity-40">Next</button></div>
+      </div>
+      <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="text-gray-400 border-b border-white/10"><th className="px-4 py-3 text-left font-medium">Guest</th><th className="px-4 py-3 text-left font-medium">Stay</th><th className="px-4 py-3 text-left font-medium">Room</th><th className="px-4 py-3 text-left font-medium">Contact</th><th className="px-4 py-3 text-right font-medium">Amount</th><th className="px-4 py-3 text-left font-medium">Status</th><th className="px-4 py-3 text-right font-medium">Action</th></tr></thead><tbody>
+        {bookings.map((booking) => <tr key={booking.id} className="border-b border-white/5 hover:bg-white/5"><td className="px-4 py-3"><div className="text-gray-200">{booking.guestName}</div><div className="text-[11px] text-gray-500 font-mono">{booking.id}</div></td><td className="px-4 py-3 text-gray-300 whitespace-nowrap">{booking.checkIn} → {booking.checkOut}<div className="text-xs text-gray-500">{booking.nights} night{booking.nights === 1 ? "" : "s"}</div></td><td className="px-4 py-3 text-gray-300">#{booking.roomNumber || "—"}</td><td className="px-4 py-3 text-gray-400">{booking.phone || booking.email || "—"}</td><td className="px-4 py-3 text-right text-gray-200">฿{booking.amount.toLocaleString()}</td><td className="px-4 py-3 whitespace-nowrap"><span className={`rounded-full px-2 py-1 text-xs ${booking.paymentStatus === "paid" ? "bg-green-500/20 text-green-300" : booking.paymentStatus === "refunded" ? "bg-blue-500/20 text-blue-300" : booking.bookingStatus === "cancelled" ? "bg-red-500/20 text-red-300" : "bg-amber-500/20 text-amber-300"}`}>{booking.paymentStatus === "paid" ? "Paid" : booking.paymentStatus === "refunded" ? "Refunded" : booking.bookingStatus === "cancelled" ? "Cancelled" : "Pending"}</span></td><td className="px-4 py-3 text-right">{booking.bookingStatus !== "cancelled" && <button onClick={() => onCancel(booking.id, booking.paymentStatus === "paid")} className="text-xs font-semibold text-red-300 hover:text-red-200">{booking.paymentStatus === "paid" ? "Cancel & refund" : "Cancel"}</button>}</td></tr>)}
+        {bookings.length === 0 && <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">No bookings yet</td></tr>}
+      </tbody></table></div>
     </div>
   );
 }
