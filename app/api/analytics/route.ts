@@ -5,6 +5,7 @@ import { Booking, expireUnpaidBookings } from "../../lib/booking";
 
 const redis = Redis.fromEnv();
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface Visitor {
   id: string;
