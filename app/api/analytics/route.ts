@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
 import { isAdminAuthorized } from "../../lib/admin-auth";
-import { Booking, expireUnpaidBookings } from "../../lib/booking";
+import { Booking, expireUnpaidBookings, isBookingEnabled } from "../../lib/booking";
 
 const redis = Redis.fromEnv();
 export const dynamic = "force-dynamic";
@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
         deviceCount,
         recentVisitors,
         bookings: bookings.slice().reverse().slice(0, 100),
-        bookingOpen: bookingSettings.bookingOpen !== false,
+        bookingOpen: isBookingEnabled() && bookingSettings.bookingOpen !== false,
         openRooms: bookingSettings.openRooms || [1, 2, 3, 4, 5],
         closures: bookingSettings.closures || [],
       },

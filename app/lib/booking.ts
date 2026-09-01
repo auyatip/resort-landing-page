@@ -3,6 +3,11 @@ export const ROOM_PRICE_THB = 550;
 export const ROOM_COUNT = 5;
 export const BOOKING_HOLD_MINUTES = 15;
 
+/** Environment kill switch for temporarily disabling public bookings. */
+export function isBookingEnabled() {
+  return process.env.BOOKING_ENABLED !== "false";
+}
+
 export const NIGHTLY_RATES_THB = {
   default: 550,
   january: 850,

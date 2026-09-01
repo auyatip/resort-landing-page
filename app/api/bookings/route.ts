@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { Redis } from "@upstash/redis";
-import { BOOKING_HOLD_MINUTES, Booking, expireUnpaidBookings, getAvailableRoomNumbers, getNights, getStayPricing, RoomClosure, ROOM_COUNT } from "../../lib/booking";
+import { BOOKING_HOLD_MINUTES, Booking, expireUnpaidBookings, getAvailableRoomNumbers, getNights, getStayPricing, isBookingEnabled, RoomClosure, ROOM_COUNT } from "../../lib/booking";
 
 const redis = Redis.fromEnv();
 const BOOKINGS_KEY = "bookings";
@@ -17,7 +17,7 @@ async function getBookings() {
 
 async function getBookingSettings() {
   const settings = (await redis.get<{ bookingOpen?: boolean; openRooms?: number[]; closures?: RoomClosure[] }>(BOOKING_SETTINGS_KEY)) || {};
-  return { bookingOpen: settings.bookingOpen !== false, openRooms: settings.openRooms || Array.from({ length: ROOM_COUNT }, (_, index) => index + 1), closures: settings.closures || [] };
+  return { bookingOpen: isBookingEnabled() && settings.bookingOpen !== false, openRooms: settings.openRooms || Array.from({ length: ROOM_COUNT }, (_, index) => index + 1), closures: settings.closures || [] };
 }
 
 function jsonError(message: string, status = 400) {
