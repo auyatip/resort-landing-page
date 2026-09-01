@@ -3,6 +3,7 @@
 import React from "react";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../lib/translations";
+import BookingGateButton from "./BookingGateButton";
 
 export default function Hero() {
   const { lang } = useLanguage();
@@ -56,13 +57,12 @@ export default function Hero() {
 
         {/* CTA */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-5">
-          <a
-            href="/booking"
+          <BookingGateButton
             className="group relative px-8 py-4 bg-accent text-primary font-bold rounded-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] font-poppins overflow-hidden shadow-lg"
           >
             <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></span>
             <span className="relative">{t.heroCheckAvailability}</span>
-          </a>
+          </BookingGateButton>
 
           <a
             href={whatsappLink}

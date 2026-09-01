@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import BookingGateButton from "./BookingGateButton";
 
 interface RoomCardProps {
   image: string;
@@ -93,12 +94,11 @@ export default function RoomCard({
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-3">
-            <a
-              href="/booking"
+            <BookingGateButton
               className="flex-1 px-6 py-4 bg-accent text-primary font-bold rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-poppins text-center"
             >
               Check dates & book
-            </a>
+            </BookingGateButton>
             <a
               href="https://lin.ee/TB4B1R9"
               className="flex-1 px-6 py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-poppins text-center"
