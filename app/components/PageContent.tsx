@@ -72,7 +72,14 @@ export default function PageContent() {
   return (
     <>
       {/* STAY AT A GLANCE */}
-      <section className="bg-primary text-white px-4 py-7 md:py-10">
+      <section
+        className="bg-primary bg-cover bg-center text-white px-4 py-7 md:py-10"
+        style={{
+          backgroundImage:
+            "linear-gradient(90deg, rgba(32, 53, 43, 0.88), rgba(32, 53, 43, 0.68)), url('/images/exterior9.jpg')",
+          backgroundPosition: "center 42%",
+        }}
+      >
         <div className="section-container">
           <AnimatedSection>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 text-center">
@@ -136,14 +143,22 @@ export default function PageContent() {
         </div>
       </section>
 
+   
       {/* GALLERY */}
       <AnimatedSection>
         <Gallery />
       </AnimatedSection>
 
       {/* ABOUT */}
-      <section id="about" className="section-padding scroll-mt-20 bg-light">
-        <div className="section-container">
+      <section
+        id="about"
+        className="relative overflow-hidden bg-light bg-cover bg-center scroll-mt-20 before:pointer-events-none before:absolute before:inset-0 before:bg-light/85"
+        style={{
+          backgroundImage: "url('/images/exterior9.jpg')",
+          backgroundPosition: "center 68%",
+        }}
+      >
+        <div className="section-container relative z-10 section-padding">
           <AnimatedSection>
             <h2 className="text-4xl font-bold text-center text-primary mb-12">
               {t.aboutTitle}
@@ -238,7 +253,7 @@ export default function PageContent() {
             </div>
 
             <AnimatedSection>
-              <div className="rounded-2xl overflow-hidden shadow-lg h-96 relative">
+              <div className="rounded-2xl overflow-hidden shadow-lg h-96 relative border-0">
                 <Image
                   src="/images/exterior1.jpg"
                   alt="A-Thip House Pai guesthouse surrounded by nature"
