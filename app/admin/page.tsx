@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { Suspense, useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
@@ -46,7 +46,7 @@ interface AnalyticsData {
   closures: { id: string; roomNumber: number; checkIn: string; checkOut: string; note?: string }[];
 }
 
-export default function AdminPage() {
+function AdminPageContent() {
   const searchParams = useSearchParams();
   const section = searchParams.get("section") || "overview";
   const [password, setPassword] = useState("");
@@ -685,5 +685,13 @@ function DeviceBar({ label, count, total }: { label: string; count: number; tota
         ></div>
       </div>
     </div>
+  );
+}
+
+export default function AdminPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#f4f0e7]" />}>
+      <AdminPageContent />
+    </Suspense>
   );
 }
