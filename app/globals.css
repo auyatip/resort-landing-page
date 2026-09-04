@@ -10,6 +10,26 @@ body {
   @apply bg-light text-darkText font-sans;
 }
 
+/* Thai UI uses Anuphan: clean, open counters and no traditional head terminals. */
+.thai-font body,
+.thai-font button,
+.thai-font input,
+.thai-font select,
+.thai-font textarea {
+  font-family: "Anuphan", system-ui, sans-serif;
+}
+
+.thai-font h1,
+.thai-font h2,
+.thai-font h3,
+.thai-font h4,
+.thai-font h5,
+.thai-font h6,
+.thai-font .font-serif,
+.thai-font .font-poppins {
+  font-family: "Anuphan", system-ui, sans-serif;
+}
+
 h1, h2, h3, h4, h5, h6 {
   @apply font-serif font-bold;
 }
@@ -20,6 +40,78 @@ h1, h2, h3, h4, h5, h6 {
 
 .section-container {
   @apply max-w-6xl mx-auto;
+}
+
+/* Keep the property's photo inside the booking card, above the form details. */
+main.min-h-screen.bg-light:has(form) form::before {
+  content: "";
+  display: block;
+  height: 10rem;
+  margin: -1.5rem -1.5rem 1.5rem;
+  background:
+    linear-gradient(90deg, rgba(32, 53, 43, 0.2), rgba(196, 154, 66, 0.05)),
+    url("/images/exterior3.jpg") center 48% / cover no-repeat;
+  border-radius: 1.5rem 1.5rem 0.75rem 0.75rem;
+}
+
+@media (min-width: 768px) {
+  main.min-h-screen.bg-light:has(form) form::before {
+    height: 14rem;
+    margin: -2.5rem -2.5rem 2rem;
+    border-radius: 1.5rem 1.5rem 1rem 1rem;
+  }
+}
+
+/* Booking card depth stays subtle so the image carries the character. */
+main.min-h-screen.bg-light:has(form) form {
+  overflow: hidden;
+  border: 1px solid rgba(32, 53, 43, 0.08);
+  background:
+    #fff;
+  box-shadow: 0 14px 36px rgba(32, 53, 43, 0.1);
+}
+
+/* Minimal modern controls for the public booking experience. */
+body:has(#main-content) button:not([aria-label="Chat on WhatsApp"]):not([aria-label="Back to top"]),
+body:has(#main-content) a[class*="bg-"] ,
+main.min-h-screen.bg-light:has(form) button {
+  border-radius: 0.625rem;
+  box-shadow: none !important;
+  transform: none !important;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, opacity 180ms ease !important;
+}
+
+body:has(#main-content) button:not([aria-label="Chat on WhatsApp"]):not([aria-label="Back to top"]):hover,
+body:has(#main-content) a[class*="bg-"]:hover,
+main.min-h-screen.bg-light:has(form) button:hover {
+  filter: none;
+}
+
+main.min-h-screen.bg-light:has(form) form > button:last-of-type {
+  min-height: 3.25rem;
+  border: 1px solid #20352b;
+  background: #20352b;
+  box-shadow: 0 8px 18px rgba(32, 53, 43, 0.16) !important;
+  letter-spacing: 0.01em;
+}
+
+main.min-h-screen.bg-light:has(form) form > button:last-of-type:not(:disabled):hover {
+  background: #2d5038;
+  box-shadow: 0 10px 22px rgba(32, 53, 43, 0.22) !important;
+}
+
+body:has(#main-content) button:focus-visible,
+body:has(#main-content) a[class*="bg-"]:focus-visible,
+main.min-h-screen.bg-light:has(form) button:focus-visible {
+  outline: 2px solid #c49a42;
+  outline-offset: 3px;
+}
+
+/* Keep the two floating actions quiet and unmistakably circular. */
+body:has(#main-content) a[aria-label="Chat on WhatsApp"],
+body:has(#main-content) button[aria-label="Back to top"] {
+  box-shadow: 0 8px 20px rgba(32, 53, 43, 0.16);
+  transition: opacity 180ms ease, background-color 180ms ease !important;
 }
 
 .cta-button {
@@ -113,4 +205,300 @@ label input {
 
 .guide-article .guide-cta-button {
   @apply inline-block px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors mt-4;
+}
+
+/* Admin workspace theme: warm Pai guesthouse palette, scoped to the dashboard. */
+.admin-shell [class~="bg-white/5"] {
+  background-color: rgba(255, 255, 255, 0.82);
+  border-color: rgba(32, 53, 43, 0.12);
+  box-shadow: 0 10px 28px rgba(32, 53, 43, 0.06);
+}
+.admin-shell [class~="border-white/10"],
+.admin-shell [class~="border-white/5"] {
+  border-color: rgba(32, 53, 43, 0.12);
+}
+.admin-shell [class~="text-gray-300"] { color: #405449; }
+.admin-shell [class~="text-gray-400"] { color: #66766c; }
+.admin-shell [class~="text-gray-500"] { color: #819087; }
+.admin-shell [class~="bg-black/20"] { background-color: rgba(32, 53, 43, 0.06); }
+.admin-shell [class~="bg-black/15"] { background-color: rgba(32, 53, 43, 0.04); }
+.admin-content h2.text-white,
+.admin-content h3.text-white { color: #20352b; }
+.admin-content [class~="text-gray-100"],
+.admin-content [class~="text-gray-200"] { color: #263d31; }
+.admin-content [class~="bg-gray-800"] { background-color: #fff; color: #20352b; }
+.admin-shell #bookings > section {
+  background: #fff;
+  border-color: rgba(32, 53, 43, 0.12);
+  color: #20352b;
+}
+.admin-shell #bookings > section [class~="text-white"] { color: #20352b; }
+.admin-shell #bookings > section [class~="text-gray-300"] { color: #405449; }
+.admin-shell #bookings > section [class~="text-gray-400"] { color: #66766c; }
+.admin-shell #bookings > section [class~="text-gray-500"] { color: #819087; }
+.admin-shell #bookings > section [class~="border-white/10"] { border-color: rgba(32, 53, 43, 0.12); }
+.admin-shell #bookings > section [class~="bg-black/15"] { background-color: #f7f5ef; }
+.admin-shell #bookings > section [class~="bg-black/20"] { background-color: #f4f0e7; }
+.admin-shell #bookings > section input,
+.admin-shell #bookings > section select {
+  background: #f8faf8;
+  color: #20352b;
+  border: 1px solid #dfe7e1;
+  border-radius: 12px;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+.admin-shell #bookings > section input:hover,
+.admin-shell #bookings > section select:hover { background: #fff; border-color: #bdcfc1; }
+.admin-shell #bookings > section input:focus,
+.admin-shell #bookings > section select:focus { background: #fff; border-color: #2d5038; box-shadow: 0 0 0 4px rgba(45, 80, 56, 0.1); }
+.admin-shell #bookings > section table thead { background: #f8faf8; }
+.admin-shell #bookings > section table tbody tr:last-child { border-bottom: 0; }
+.admin-shell #bookings > section table tbody tr { transition: background 160ms ease; }
+.admin-shell #bookings > section table tbody tr:hover { background: #f8fbf8; }
+.admin-shell #bookings > section table th { color: #718078; font-size: 0.68rem; }
+.admin-shell #bookings > section table td { border-color: #edf1ee; }
+.admin-shell #bookings > section table td button { transition: background 160ms ease, color 160ms ease; }
+.admin-shell #bookings > section table td button:hover { background: #fff0ef; }
+.admin-shell #bookings > section > div:last-child button:not(:disabled) { background: #f8faf8; color: #405449; }
+.admin-shell #bookings > section > div:last-child button:not(:disabled):hover { background: #eaf2ec; color: #20352b; }
+@media (max-width: 767px) {
+  .admin-shell #bookings > section > div:first-child { padding: 18px; }
+  .admin-shell #bookings > section > div:last-child { flex-direction: column; align-items: stretch; }
+  .admin-shell #bookings > section > div:last-child > div { justify-content: space-between; }
+}
+.admin-shell input,
+.admin-shell select {
+  border-color: rgba(32, 53, 43, 0.16);
+}
+
+/* Desktop dashboard layout: persistent workspace navigation instead of a dense toolbar. */
+.admin-content { display: flex; flex-direction: column; }
+.admin-content > * { order: 10; }
+.admin-content > nav { order: 0; }
+.admin-content > #bookings { order: 1; }
+.admin-content > #rooms { order: 2; }
+.admin-content > #rooms + div { order: 3; }
+.admin-content > #analytics { order: 4; }
+.admin-content > #visitors { order: 20; }
+
+.admin-shell:not(.admin-section-overview) .admin-content > * { display: none; }
+.admin-shell:not(.admin-section-overview) .admin-content > nav { display: flex; }
+.admin-shell.admin-section-bookings .admin-content > #bookings,
+.admin-shell.admin-section-analytics .admin-content > #analytics,
+.admin-shell.admin-section-visitors .admin-content > #visitors { display: block; }
+.admin-shell.admin-section-overview .admin-content > #rooms,
+.admin-shell.admin-section-overview .admin-content > #rooms + div,
+.admin-shell.admin-section-overview .admin-content > #bookings,
+.admin-shell.admin-section-overview .admin-content > #visitors { display: none; }
+.admin-shell.admin-section-overview .admin-content > #rooms,
+.admin-shell.admin-section-overview .admin-content > #rooms + div,
+.admin-shell.admin-section-overview .admin-content > #bookings,
+.admin-shell.admin-section-overview .admin-content > #visitors { display: none; }
+
+@media (min-width: 1024px) {
+  .admin-content {
+    position: relative;
+    max-width: 1440px;
+    padding-left: 252px;
+  }
+  .admin-content > nav {
+    position: absolute;
+    top: 24px;
+    left: 16px;
+    width: 208px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    padding: 10px;
+    border: 1px solid rgba(32, 53, 43, 0.12);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 16px 36px rgba(32, 53, 43, 0.08);
+  }
+  .admin-content > nav a {
+    border-radius: 11px;
+    padding: 12px 14px;
+    text-align: left;
+  }
+  .admin-content > nav a.admin-nav-active {
+    background: #20352b;
+    color: #fff;
+  }
+  .admin-content > nav a:hover {
+    background: rgba(32, 53, 43, 0.08);
+    color: #20352b;
+  }
+  .admin-content > nav a.admin-nav-active:hover {
+    background: #2d5038;
+    color: #fff;
+  }
+}
+
+.admin-shell section,
+.admin-shell .admin-content > div:not([id="bookings"]) {
+  scroll-margin-top: 96px;
+}
+.admin-shell .admin-content > div[id="rooms"] {
+  border-radius: 18px;
+}
+.admin-shell table th {
+  letter-spacing: 0.04em;
+}
+.admin-shell button:focus-visible,
+.admin-shell a:focus-visible,
+.admin-shell input:focus-visible,
+.admin-shell select:focus-visible {
+  outline: 3px solid rgba(193, 154, 66, 0.55);
+  outline-offset: 2px;
+}
+.admin-header button,
+.admin-header a { min-height: 40px; }
+.admin-header a { display: inline-flex; align-items: center; }
+.admin-header button,
+.admin-header a { padding: 9px 12px; font-size: 0.75rem; }
+.admin-header { display: none; }
+.admin-content > #dashboard-overview { order: 1; }
+.admin-content > .admin-today-grid { order: 2; }
+
+ .admin-subpage-shell > aside .mb-6 { margin-bottom: 0; }
+.admin-subpage-shell > div > main { min-height: 100%; padding: 0 0 2rem; background: transparent; }
+ .admin-subpage-shell > div > main > div { max-width: 100%; }
+ .admin-subpage-shell > div > main > div > nav { display: none; }
+ .admin-subpage-shell main.bg-gray-950 { background: transparent; }
+ .admin-subpage-shell main.bg-gray-950 [class~="bg-white/5"] { background: rgba(255,255,255,.86); border-color: rgba(32,53,43,.12); color: #20352b; box-shadow: 0 10px 28px rgba(32,53,43,.06); }
+ .admin-subpage-shell main.bg-gray-950 [class~="text-gray-400"] { color: #66766c; }
+ .admin-subpage-shell main.bg-gray-950 [class~="text-gray-500"] { color: #819087; }
+.admin-subpage-shell main.bg-gray-950 [class~="bg-white/10"] { background: rgba(32,53,43,.07); }
+.admin-subpage-shell main.bg-gray-950 {
+  background: #f4f0e7 !important;
+  color: #20352b;
+}
+.admin-subpage-shell main.bg-gray-950 h1,
+.admin-subpage-shell main.bg-gray-950 h2,
+.admin-subpage-shell main.bg-gray-950 h3 { color: #20352b; }
+.admin-subpage-shell main.bg-gray-950 [class~="text-white"] { color: #20352b; }
+.admin-subpage-shell main.bg-gray-950 [class~="text-gray-300"] { color: #405449; }
+.admin-subpage-shell main.bg-gray-950 [class~="text-gray-400"] { color: #66766c; }
+.admin-subpage-shell main.bg-gray-950 [class~="text-gray-500"] { color: #819087; }
+.admin-subpage-shell main.bg-gray-950 [class~="bg-white/5"] {
+  background: #fff;
+  border-color: #dfe7e1;
+  box-shadow: 0 10px 28px rgba(32, 53, 43, 0.06);
+}
+.admin-subpage-shell main.bg-gray-950 [class~="bg-white/10"] { background: #eef3ee; color: #405449; }
+.admin-subpage-shell main.bg-gray-950 [class~="bg-black/20"] { background: #f0eee8; }
+.admin-subpage-shell main.bg-gray-950 [class~="bg-gray-800"] { background: #fff; color: #20352b; border: 1px solid #dfe7e1; }
+.admin-subpage-shell main.bg-gray-950 [class~="border-white/10"] { border-color: #dfe7e1; }
+.admin-subpage-shell main.bg-gray-950 [class~="text-green-300"] { color: #166534; }
+.admin-subpage-shell main.bg-gray-950 [class~="text-red-300"] { color: #b42318; }
+.admin-subpage-shell main.bg-gray-950 [class~="text-accent"] { color: #8a641f; }
+.admin-subpage-shell main.bg-gray-950 [class~="bg-green-600"],
+.admin-subpage-shell main.bg-gray-950 [class~="bg-amber-600"] { color: #fff; }
+.admin-room-page {
+  background: #f4f0e7 !important;
+  color: #20352b !important;
+}
+.admin-room-page h1,
+.admin-room-page h2 { color: #20352b; }
+.admin-room-page [class~="text-white"] { color: #20352b; }
+.admin-room-page [class~="text-gray-300"] { color: #405449; }
+.admin-room-page [class~="text-gray-400"] { color: #66766c; }
+.admin-room-page [class~="text-gray-500"] { color: #819087; }
+.admin-room-page [class~="text-gray-600"] { color: #9aa69e; }
+.admin-room-page [class~="bg-white/5"] {
+  background: #fff;
+  border-color: #dfe7e1;
+  box-shadow: 0 10px 28px rgba(32, 53, 43, 0.06);
+}
+.admin-room-page [class~="bg-white/10"] { background: #eef3ee; color: #405449; }
+.admin-room-page [class~="bg-black/20"] { background: #f0eee8; }
+.admin-room-page [class~="bg-gray-800"] { background: #fff; color: #20352b; border: 1px solid #dfe7e1; }
+.admin-room-page [class~="border-white/10"] { border-color: #dfe7e1; }
+.admin-room-page [class~="text-green-300"] { color: #166534; }
+.admin-room-page [class~="text-red-300"] { color: #b42318; }
+.admin-room-page [class~="text-accent"] { color: #8a641f; }
+.admin-room-page [class~="bg-green-600"],
+.admin-room-page [class~="bg-amber-600"] { color: #fff; }
+.admin-room-page button:hover { filter: brightness(0.97); }
+@media (min-width: 1024px) { .admin-subpage-shell > aside { position: sticky; top: 24px; height: fit-content; } }
+
+/* Mobile-first admin controls: comfortable touch targets and no accidental viewport overflow. */
+.admin-shell,
+.admin-subpage-shell { overflow-x: hidden; }
+.admin-shell button,
+.admin-shell a,
+.admin-subpage-shell button,
+.admin-subpage-shell a { -webkit-tap-highlight-color: transparent; }
+.admin-shell button,
+.admin-shell a,
+.admin-subpage-shell button,
+.admin-subpage-shell a { min-height: 42px; }
+.admin-subpage-shell > aside { min-width: 0; }
+.admin-subpage-shell > aside nav { width: 100%; }
+.admin-subpage-shell > aside nav a { flex: 0 0 auto; }
+.admin-subpage-shell > div > main { width: 100%; }
+.admin-subpage-shell main h1 { font-size: clamp(1.75rem, 6vw, 2.5rem); line-height: 1.1; }
+.admin-subpage-shell main section { max-width: 100%; }
+.admin-subpage-shell main table { border-collapse: separate; border-spacing: 0; }
+.admin-subpage-shell main input,
+.admin-subpage-shell main select,
+.admin-subpage-shell main button { min-height: 44px; }
+@media (max-width: 767px) {
+  .admin-shell .admin-content > nav {
+    position: relative !important;
+    top: auto !important;
+    z-index: 1;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 6px;
+    width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0;
+    padding: 6px;
+    border: 1px solid #dfe7e1;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(32, 53, 43, 0.07);
+  }
+  .admin-shell .admin-content > nav::-webkit-scrollbar,
+  .admin-subpage-shell aside nav::-webkit-scrollbar { display: none; }
+  .admin-content { padding: 12px; }
+  .admin-content > nav a {
+    flex: 0 0 auto;
+    min-height: 42px;
+    padding: 11px 13px;
+    border-radius: 11px;
+    color: #66766c;
+  }
+  .admin-content > nav a:hover { background: #f4f0e7; color: #20352b; }
+  .admin-content > nav a.admin-nav-active { background: #20352b; color: #fff; }
+  .admin-content > nav button { flex: 0 0 auto; margin-top: 0; color: #a33b35; }
+  .admin-today-grid { grid-template-columns: 1fr; }
+  .admin-subpage-shell { padding: 12px; }
+  .admin-subpage-shell > aside { padding: 0; }
+  .admin-subpage-shell > div > main { padding: 0 0 20px; }
+  .admin-subpage-shell > aside nav { margin-bottom: 12px; }
+  .admin-subpage-shell > aside nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .admin-subpage-shell > aside nav a { flex: 0 0 auto; }
+  .admin-subpage-shell main section { border-radius: 20px; padding: 18px; }
+  .admin-subpage-shell main table { min-width: 580px; }
+  .admin-subpage-shell main table th,
+  .admin-subpage-shell main table td { padding-left: 12px; padding-right: 12px; }
+}
+
+@media (min-width: 768px) {
 }

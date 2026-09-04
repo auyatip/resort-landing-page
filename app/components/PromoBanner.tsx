@@ -15,7 +15,7 @@ export default function PromoBanner() {
         <div className="flex flex-col md:flex-row items-center gap-8">
           <div className="flex-1 text-center md:text-left">
             <span className="inline-block px-4 py-1 bg-accent/20 text-accent rounded-full text-sm font-semibold mb-4">
-              ✨ {t.promoTag}
+              <iconify-icon icon="material-symbols:local-offer-outline" width="16" height="16" aria-hidden="true" /> {t.promoTag}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold mb-4 font-serif">
               {t.promoTitle}

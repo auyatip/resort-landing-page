@@ -22,13 +22,13 @@ export default function Footer() {
             <h4 className="font-bold mb-4">{t.footerContact}</h4>
             <div className="space-y-2">
               <p>
-                📱{" "}
+                <iconify-icon icon="material-symbols:call" width="16" height="16" aria-hidden="true" />{" "}
                 <a href="tel:+66946765524" className="hover:text-accent transition">
                   +66 946765524
                 </a>
               </p>
               <p>
-                💬{" "}
+                <iconify-icon icon="material-symbols:chat" width="16" height="16" aria-hidden="true" />{" "}
                 <a
                   href="https://wa.me/66946765524"
                   target="_blank"

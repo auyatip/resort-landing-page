@@ -2,8 +2,6 @@ import React from "react";
 import Hero from "./components/Hero";
 import Navbar from "./components/Navbar";
 import PageContent from "./components/PageContent";
-import StickyBookingBar from "./components/StickyBookingBar";
-import FloatingButtons from "./components/FloatingButtons";
 import Footer from "./components/Footer";
 
 export const metadata = {
@@ -23,12 +21,12 @@ export const metadata = {
 export default function Home() {
   return (
     <>
-      {/* <Navbar /> */}
+      <Navbar />
       <Hero />
-      <PageContent />
+      <main id="main-content">
+        <PageContent />
+      </main>
       <Footer />
-      <StickyBookingBar />
-      <FloatingButtons />
     </>
   );
 }

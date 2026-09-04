@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { LanguageProvider } from "./context/LanguageContext";
 import LanguageToggle from "./components/LanguageToggle";
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
       "Stay in a quiet and cozy guesthouse surrounded by nature in Pai, Thailand.",
     images: [
       {
-        url: "/images/570093910_122107554375056471_7287830858178467148_n.jpg",
+        url: "/images/exterior9.jpg",
         width: 1200,
         height: 630,
         alt: "A-Thip House @ Pai - Peaceful Nature Stay",
@@ -59,13 +60,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
+        <Script
+          src="https://code.iconify.design/iconify-icon/1.0.8/iconify-icon.min.js"
+          strategy="beforeInteractive"
+        />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#2D5016" />
-        <link
-          rel="icon"
-          href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏡</text></svg>"
-        />
         {/* Preload critical fonts with font-display:swap */}
         <link
           rel="preconnect"
@@ -77,14 +78,14 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
         />
         {/* Preload hero background image (used as CSS background-image) */}
         <link
           rel="preload"
           as="image"
-          href="/images/570093910_122107554375056471_7287830858178467148_n.jpg"
+          href="/images/exterior9.jpg"
         />
         <JsonLd />
       </head>

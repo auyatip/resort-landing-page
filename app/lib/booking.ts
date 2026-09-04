@@ -13,7 +13,12 @@ export const NIGHTLY_RATES_THB = {
   january: 850,
   february: 850,
   march: 700,
-  september: 550,
+  april: 550,
+  may: 550,
+  june: 550,
+  july: 550,
+  august: 550,
+  september: 500,
   october: 750,
   november: 850,
   december: 900,
@@ -45,6 +50,23 @@ export function getStayPricing(checkIn: string, checkOut: string) {
   for (let index = 0; index < nights; index += 1) {
     const night = new Date(start.getTime() + index * 86400000).toISOString().slice(0, 10);
     rates.push(getNightlyRate(night));
+  }
+  return { nights, rates, total: rates.reduce((sum, rate) => sum + rate, 0) };
+}
+
+export function getStayPricingWithRates(checkIn: string, checkOut: string, ratesConfig: typeof NIGHTLY_RATES_THB & { daily?: Record<string, number>; weekend?: Record<keyof typeof NIGHTLY_RATES_THB, number> }) {
+  const nights = getNights(checkIn, checkOut);
+  const rates: number[] = [];
+  const start = new Date(checkIn + "T00:00:00Z");
+  for (let index = 0; index < nights; index += 1) {
+    const night = new Date(start.getTime() + index * 86400000);
+    const dateKey = night.toISOString().slice(0, 10);
+    if (ratesConfig.daily?.[dateKey]) { rates.push(ratesConfig.daily[dateKey]); continue; }
+    const month = night.getUTCMonth() + 1;
+    const day = night.getUTCDate();
+    const key = month === 12 && day >= 30 || month === 1 && day <= 2 ? "newYear" : (["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"] as const)[month - 1];
+    const isWeekend = night.getUTCDay() === 0 || night.getUTCDay() === 6;
+    rates.push(isWeekend && ratesConfig.weekend?.[key] ? ratesConfig.weekend[key] : ratesConfig[key]);
   }
   return { nights, rates, total: rates.reduce((sum, rate) => sum + rate, 0) };
 }

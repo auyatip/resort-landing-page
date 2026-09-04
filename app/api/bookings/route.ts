@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { Redis } from "@upstash/redis";
 import { BOOKING_HOLD_MINUTES, Booking, expireUnpaidBookings, getAvailableRoomNumbers, getNights, getStayPricing, isBookingEnabled, RoomClosure, ROOM_COUNT } from "../../lib/booking";
+import { getPricingConfig, getStayPricingFromConfig } from "../../lib/pricing-server";
 
 const redis = Redis.fromEnv();
 const BOOKINGS_KEY = "bookings";
@@ -36,14 +37,15 @@ async function releaseBookingLock(token: string) {
   }
 }
 
-async function createStripeCheckout(booking: Booking) {
+async function createStripeCheckout(booking: Booking, requestOrigin: string) {
   const secret = process.env.STRIPE_SECRET_KEY;
   if (!secret) return null;
 
+  const siteUrl = requestOrigin || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const params = new URLSearchParams();
   params.set("mode", "payment");
-  params.set("success_url", `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/booking/success?booking=${booking.id}`);
-  params.set("cancel_url", `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/booking?cancelled=${booking.id}`);
+  params.set("success_url", `${siteUrl}/booking/success?booking=${booking.id}`);
+  params.set("cancel_url", `${siteUrl}/booking?cancelled=${booking.id}`);
   params.set("line_items[0][price_data][currency]", "thb");
   params.set("line_items[0][price_data][product_data][name]", "A-Thip House stay - " + (booking.rooms || 1) + " room" + ((booking.rooms || 1) > 1 ? "s" : "") + ", " + booking.nights + " night" + (booking.nights > 1 ? "s" : ""));
   params.set("line_items[0][price_data][unit_amount]", String(booking.amount * 100));
@@ -56,7 +58,11 @@ async function createStripeCheckout(booking: Booking) {
     headers: { Authorization: `Bearer ${secret}`, "Content-Type": "application/x-www-form-urlencoded" },
     body: params,
   });
-  if (!response.ok) throw new Error("Stripe checkout could not be created");
+  if (!response.ok) {
+    const errorBody = await response.text();
+    console.error("Stripe checkout creation failed:", { status: response.status, body: errorBody });
+    throw new Error("Stripe checkout could not be created");
+  }
   const session = await response.json();
   return { url: session.url as string, id: session.id as string };
 }
@@ -104,12 +110,12 @@ export async function POST(request: NextRequest) {
       roomNumbers,
       rooms: requestedRooms,
       guestName, email, phone, checkIn, checkOut, nights,
-      amount: getStayPricing(checkIn, checkOut).total * requestedRooms,
+      amount: (await getStayPricingFromConfig(checkIn, checkOut, await getPricingConfig())).total * requestedRooms,
       bookingStatus: "pending", paymentStatus: "pending",
       createdAt: now.toISOString(),
       holdUntil: new Date(now.getTime() + BOOKING_HOLD_MINUTES * 60000).toISOString(),
     };
-    const checkout = await createStripeCheckout(booking);
+    const checkout = await createStripeCheckout(booking, request.nextUrl.origin);
     if (checkout) booking.paymentReference = checkout.id;
     await redis.set(BOOKINGS_KEY, [...bookings.slice(-4999), booking]);
 

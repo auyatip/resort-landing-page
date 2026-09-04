@@ -20,9 +20,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const saved = localStorage.getItem("lang") as Language | null;
-    if (saved === "th" || saved === "en") {
-      setLang(saved);
-    }
+    const nextLang = saved === "th" || saved === "en" ? saved : "en";
+    setLang(nextLang);
+    document.documentElement.lang = nextLang;
+    document.documentElement.classList.toggle("thai-font", nextLang === "th");
     setMounted(true);
   }, []);
 
@@ -30,6 +31,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     setLang((prev) => {
       const next = prev === "en" ? "th" : "en";
       localStorage.setItem("lang", next);
+      document.documentElement.lang = next;
+      document.documentElement.classList.toggle("thai-font", next === "th");
       return next;
     });
   };

@@ -33,7 +33,7 @@ export default function StickyBookingBar() {
               className="flex-1 cta-primary text-center text-xs py-3"
               title="Call now"
             >
-              📞 {t.stickyCall}
+              <iconify-icon icon="material-symbols:call" width="16" height="16" aria-hidden="true" /> {t.stickyCall}
             </a>
             <a
               href={whatsappLink}
@@ -51,7 +51,7 @@ export default function StickyBookingBar() {
               className="flex-1 cta-primary text-center text-xs py-3 bg-blue-500 hover:bg-blue-600"
               title="LINE"
             >
-              📱 {t.stickyLINE}
+              <iconify-icon icon="simple-icons:line" width="16" height="16" aria-hidden="true" /> {t.stickyLINE}
             </a>
           </div>
         </div>

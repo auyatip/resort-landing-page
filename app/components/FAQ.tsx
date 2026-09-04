@@ -19,7 +19,7 @@ export default function FAQ() {
   ];
 
   return (
-    <section className="section-padding bg-white">
+    <section id="faq" className="section-padding scroll-mt-20 bg-white">
       <div className="section-container">
         <h2 className="text-4xl font-bold text-center text-primary mb-4">
           {t.faqTitle}

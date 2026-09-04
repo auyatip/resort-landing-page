@@ -17,10 +17,10 @@ export default function Hero() {
 
   return (
      <section
-      className="relative min-h-[680px] md:h-[760px] bg-cover bg-center flex items-center justify-center overflow-hidden"
+      className="relative min-h-[760px] md:h-[840px] bg-cover bg-center flex items-center justify-center overflow-hidden"
       style={{
   backgroundImage:
-    "linear-gradient(135deg, rgba(45, 80, 22, 0.48) 0%, rgba(45, 80, 22, 0.32) 100%), url('/images/570093910_122107554375056471_7287830858178467148_n.jpg')",
+    "linear-gradient(135deg, rgba(45, 80, 22, 0.56) 0%, rgba(45, 80, 22, 0.32) 100%), url('/images/exterior2.jpg')",
 }}
     >
 
@@ -35,7 +35,7 @@ export default function Hero() {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 mb-6 px-5 py-2 bg-black/20 backdrop-blur-md rounded-full border border-white/30">
           <span className="text-xs md:text-sm font-poppins font-medium tracking-wider uppercase">
-            ✨ {t.heroBadge}
+            {t.heroBadge}
           </span>
         </div>
 
@@ -58,34 +58,20 @@ export default function Hero() {
         {/* CTA */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-5">
           <BookingGateButton
-            className="group relative px-8 py-4 bg-accent text-primary font-bold rounded-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] font-poppins overflow-hidden shadow-lg"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-accent px-7 py-3.5 font-poppins font-bold text-primary shadow-lg transition-colors duration-200 hover:bg-[#d6b260]"
           >
-            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></span>
-            <span className="relative">{t.heroCheckAvailability}</span>
+            <iconify-icon icon="material-symbols:calendar-month" width="18" height="18" aria-hidden="true" />
+            <span>{t.heroCheckAvailability}</span>
           </BookingGateButton>
 
           <a
             href={whatsappLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative px-8 py-4 bg-[#25D366] text-white font-bold rounded-xl hover:bg-[#1fba59] hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] font-poppins overflow-hidden"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/50 bg-white/10 px-7 py-3.5 font-poppins font-bold text-white transition-colors duration-200 hover:bg-white/20"
           >
-            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></span>
-            <span className="relative">{t.heroBookWhatsApp}</span>
-          </a>
-        </div>
-
-        {/* Pai Guide CTA */}
-        <div className="flex justify-center mb-10">
-          <a
-            href="/pai-guide"
-            className="group relative px-8 py-3 bg-white/15 backdrop-blur-md text-white font-semibold rounded-xl border border-white/30 hover:bg-white/25 transition-all duration-300 transform hover:scale-105 font-poppins flex items-center gap-2"
-          >
-            <span className="text-xl">🗺️</span>
-            <span>Explore Pai Travel Guide</span>
-            <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+            <iconify-icon icon="simple-icons:whatsapp" width="18" height="18" aria-hidden="true" />
+            <span>{t.heroBookWhatsApp}</span>
           </a>
         </div>
 

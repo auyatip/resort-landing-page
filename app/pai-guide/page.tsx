@@ -6,10 +6,10 @@ import { GuideContent } from "../lib/pai-guide/types";
 import GuideCard from "../components/pai-guide/GuideCard";
 
 const CLUSTERS: Record<string, { icon: string; name: string; description: string }> = {
-  travel: { icon: "🏔️", name: "Pai Travel", description: "Itineraries, attractions, and things to do" },
-  "slow-living": { icon: "🧘", name: "Slow Living", description: "Wellness, slow travel, and mindful living" },
-  "digital-nomad": { icon: "💻", name: "Digital Nomad", description: "Remote work, coworking, and nomad life" },
-  "food-transport": { icon: "🛵", name: "Food & Transport", description: "Best food, delivery apps, and getting around Pai" },
+  travel: { icon: "material-symbols:landscape", name: "Pai Travel", description: "Itineraries, attractions, and things to do" },
+  "slow-living": { icon: "material-symbols:self-improvement", name: "Slow Living", description: "Wellness, slow travel, and mindful living" },
+  "digital-nomad": { icon: "material-symbols:laptop-mac", name: "Digital Nomad", description: "Remote work, coworking, and nomad life" },
+  "food-transport": { icon: "material-symbols:two-wheeler", name: "Food & Transport", description: "Best food, delivery apps, and getting around Pai" },
 };
 
 export const metadata: Metadata = {
@@ -51,7 +51,7 @@ export default function PaiGuidePage() {
           <p className="text-white/85 text-lg md:text-xl max-w-2xl mb-6">
             Everything you need to plan the perfect Pai trip — written by locals who actually live here.
           </p>
-          <p className="text-white/40 text-xs mb-4">📷 Md Mamun Miah</p>
+           <p className="text-white/40 text-xs mb-4"><iconify-icon icon="material-symbols:photo-camera-outline" width="14" height="14" aria-hidden="true" /> Md Mamun Miah</p>
           <div className="flex flex-col sm:flex-row gap-3">
             <a href="https://wa.me/66946765524?text=Hello%20I%20found%20you%20through%20the%20Pai%20Guide%20and%20I%20am%20interested%20in%20booking%20a%20room" target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors">
               Book Your Stay at Athip House
@@ -79,7 +79,7 @@ export default function PaiGuidePage() {
           return (
             <div key={clusterKey} className="mb-16">
               <div className="flex items-center gap-3 mb-8">
-                <span className="text-3xl">{cluster.icon}</span>
+                 <iconify-icon icon={cluster.icon} width="32" height="32" className="text-accent" aria-hidden="true" />
                 <div>
                   <h2 className="text-2xl md:text-3xl font-serif font-bold text-primary">{cluster.name}</h2>
                   <p className="text-gray-600 text-sm">{cluster.description}</p>
@@ -114,7 +114,7 @@ export default function PaiGuidePage() {
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/" className="px-8 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors">View Rooms</Link>
-            <a href="https://wa.me/66946765524?text=Hello%20I%20am%20interested%20in%20booking%20a%20room" target="_blank" rel="noopener noreferrer" className="px-8 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors">💬 WhatsApp Us</a>
+           <a href="https://wa.me/66946765524?text=Hello%20I%20am%20interested%20in%20booking%20a%20room" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors"><iconify-icon icon="simple-icons:whatsapp" width="18" height="18" aria-hidden="true" /> WhatsApp Us</a>
           </div>
         </div>
       </section>

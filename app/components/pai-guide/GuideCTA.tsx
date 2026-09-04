@@ -36,14 +36,14 @@ export default function GuideCTA() {
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors"
         >
-          <span>📱</span>
+          <iconify-icon icon="material-symbols:chat" width="18" height="18" aria-hidden="true" />
           Book via LINE
         </a>
         <a
           href={`tel:${BOOKING_CTA.phone}`}
           className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-accent text-primary font-semibold rounded-lg hover:bg-accent/80 transition-colors"
         >
-          <span>☎️</span>
+          <iconify-icon icon="material-symbols:call" width="18" height="18" aria-hidden="true" />
           Call {BOOKING_CTA.phone}
         </a>
       </div>

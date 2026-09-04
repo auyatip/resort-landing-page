@@ -94,7 +94,7 @@ export default function PaiGuideLayout({ children }: { children: React.ReactNode
                   rel="noopener noreferrer"
                   className="px-4 py-2 bg-green-500 text-white text-sm font-semibold rounded-lg hover:bg-green-600 transition-colors text-center"
                 >
-                  💬 WhatsApp
+                  <iconify-icon icon="simple-icons:whatsapp" width="16" height="16" aria-hidden="true" /> WhatsApp
                 </a>
                 <a
                   href="https://lin.ee/TB4B1R9"
@@ -102,7 +102,7 @@ export default function PaiGuideLayout({ children }: { children: React.ReactNode
                   rel="noopener noreferrer"
                   className="px-4 py-2 bg-blue-500 text-white text-sm font-semibold rounded-lg hover:bg-blue-600 transition-colors text-center"
                 >
-                  📱 LINE
+                  <iconify-icon icon="simple-icons:line" width="16" height="16" aria-hidden="true" /> LINE
                 </a>
               </div>
             </div>

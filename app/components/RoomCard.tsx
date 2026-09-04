@@ -10,6 +10,8 @@ interface RoomCardProps {
   name: string;
   features: string[];
   price: string;
+  priceLabel?: string;
+  primaryBookText?: string;
   amenitiesLabel?: string;
   bookLineText?: string;
   bookWhatsAppText?: string;
@@ -22,6 +24,8 @@ export default function RoomCard({
   name,
   features,
   price,
+  priceLabel = "Price per night",
+  primaryBookText = "Check dates & book",
   amenitiesLabel = "Amenities",
   bookLineText = "Book via LINE",
   bookWhatsAppText = "Book via WhatsApp",
@@ -32,28 +36,27 @@ export default function RoomCard({
   const showPrevious = () => setActiveImage((current) => (current - 1 + images.length) % images.length);
   const showNext = () => setActiveImage((current) => (current + 1) % images.length);
   return (
-    <div className="w-full max-w-2xl animate-fade-in">
+    <div className="w-full max-w-2xl">
       {/* Featured Room Card */}
-      <div className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+      <div className="overflow-hidden rounded-2xl border border-black/5 bg-white shadow-md">
         {/* Image Container with overlay */}
-        <div className="relative h-96 bg-gray-300 overflow-hidden group">
+        <div className="relative aspect-[4/3] bg-gray-300 overflow-hidden group sm:aspect-[16/10]">
           <Image
             src={images[activeImage]}
             alt={name}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-            className="object-cover group-hover:scale-110 transition-transform duration-500"
+            className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           {images.length > 1 && <>
             <button type="button" onClick={showPrevious} className="absolute left-4 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-2xl text-white backdrop-blur-sm transition hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white" aria-label={`Previous ${name} photo`}>
-              ‹
+              <iconify-icon icon="material-symbols:chevron-left" width="24" height="24" aria-hidden="true" />
             </button>
             <button type="button" onClick={showNext} className="absolute right-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-accent text-2xl font-semibold text-primary shadow-lg transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white" aria-label={`Next ${name} photo`}>
-              ›
+              <iconify-icon icon="material-symbols:chevron-right" width="24" height="24" aria-hidden="true" />
             </button>
-            <span className="absolute bottom-4 right-4 z-20 rounded-full bg-black/55 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">{activeImage + 1} / {images.length}</span>
+            <span className="absolute bottom-4 right-4 z-20 rounded-md bg-black/55 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-sm">{activeImage + 1} / {images.length}</span>
           </>}
         </div>
 
@@ -66,53 +69,55 @@ export default function RoomCard({
         </div>
 
         {/* Content Container */}
-        <div className="p-8 md:p-10">
+        <div className="p-5 sm:p-8">
           {/* Title with accent */}
           <div className="mb-6">
-            <h3 className="text-4xl md:text-4xl font-serif font-bold text-primary mb-2">{name}</h3>
-            <div className="h-1 w-16 bg-gradient-to-r from-accent to-transparent rounded-full"></div>
+            <h3 className="text-3xl font-serif font-bold text-primary mb-2">{name}</h3>
+            <div className="h-px w-12 bg-accent"></div>
           </div>
 
           {/* Features Grid */}
           <div className="mb-8">
-            <p className="text-sm font-poppins text-gray-500 uppercase tracking-widest mb-4">{amenitiesLabel}</p>
+            <p className="text-xs font-poppins text-gray-500 uppercase tracking-widest mb-4">{amenitiesLabel}</p>
             <div className="grid grid-cols-2 gap-3">
               {features.map((feature, idx) => (
                 <div key={idx} className="flex items-center gap-2">
-                  <span className="text-accent text-lg">✓</span>
+                  <iconify-icon className="text-accent" icon="material-symbols:check" width="18" height="18" aria-hidden="true" />
                   <span className="text-gray-700 text-sm font-poppins">{feature}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Price Section */}
-          {/* <div className="bg-gradient-to-r from-accent/10 to-secondary/10 rounded-2xl p-6 mb-6">
-            <p className="text-xs font-poppins text-gray-600 uppercase tracking-widest mb-2">Price Per Night</p>
-            <p className="text-3xl md:text-4xl font-bold text-secondary font-serif">{price}</p>
-          </div> */}
+          <div className="mb-6 border-y border-primary/10 py-4">
+            <p className="mb-1 text-xs font-poppins uppercase tracking-widest text-gray-500">{priceLabel}</p>
+            <p className="font-serif text-3xl font-bold text-primary">{price}</p>
+          </div>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="space-y-3">
             <BookingGateButton
-              className="flex-1 px-6 py-4 bg-accent text-primary font-bold rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-poppins text-center"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3.5 text-center font-poppins font-bold text-primary shadow-[0_6px_16px_rgba(196,154,66,0.22)] transition-colors duration-200 hover:bg-[#d6b260]"
             >
-              Check dates & book
+              <iconify-icon icon="material-symbols:calendar-month" width="18" height="18" aria-hidden="true" />
+              {primaryBookText}
             </BookingGateButton>
-            <a
-              href="https://lin.ee/TB4B1R9"
-              className="flex-1 px-6 py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-poppins text-center"
-            >
-              {bookLineText}
-            </a>
-            <a
-              href="https://wa.me/66946765524?text=Hi%20I%27m%20interested%20in%20booking%20a%20room%20at%20A-Thip%20House"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 px-6 py-4 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 hover:shadow-lg transition-all duration-300 transform hover:scale-105 font-poppins text-center"
-            >
-              {bookWhatsAppText}
-            </a>
+            <div className="grid grid-cols-2 gap-3">
+              <a
+                href="https://lin.ee/TB4B1R9"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg border border-primary bg-transparent px-3 py-3 text-center text-sm font-poppins font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-white"
+              >
+                {bookLineText}
+              </a>
+              <a
+                href="https://wa.me/66946765524?text=Hi%20I%27m%20interested%20in%20booking%20a%20room%20at%20A-Thip%20House"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg border border-green-600 bg-transparent px-3 py-3 text-center text-sm font-poppins font-semibold text-green-700 transition-colors duration-200 hover:bg-green-600 hover:text-white"
+              >
+                {bookWhatsAppText}
+              </a>
+            </div>
           </div>
 
           {/* Info text */}

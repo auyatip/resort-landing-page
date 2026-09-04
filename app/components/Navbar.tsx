@@ -56,7 +56,7 @@ export default function Navbar() {
                   : "bg-white/20 text-white backdrop-blur-sm border border-white/30 hover:bg-white/30"
               }`}
             >
-              <span>🗺️</span>
+              <iconify-icon icon="material-symbols:map-outline" width="18" height="18" aria-hidden="true" />
               <span>Pai Guide</span>
             </Link>
           </div>
@@ -101,7 +101,7 @@ export default function Navbar() {
               onClick={() => setMenuOpen(false)}
               className="block px-4 py-2.5 bg-primary text-white rounded-lg font-semibold text-sm mt-2 text-center"
             >
-              🗺️ Pai Travel Guide
+              <iconify-icon icon="material-symbols:map-outline" width="18" height="18" aria-hidden="true" /> Pai Travel Guide
             </Link>
           </div>
         </div>

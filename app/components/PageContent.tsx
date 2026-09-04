@@ -72,25 +72,25 @@ export default function PageContent() {
   return (
     <>
       {/* STAY AT A GLANCE */}
-      <section className="bg-primary text-white px-4 py-10 md:py-14">
+      <section className="bg-primary text-white px-4 py-7 md:py-10">
         <div className="section-container">
           <AnimatedSection>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 text-center">
               <div>
-                <div className="text-3xl md:text-4xl font-serif font-bold text-accent">2.3 km</div>
-                <p className="mt-2 text-sm text-white/75">from Pai town</p>
+                <div className="text-2xl md:text-3xl font-serif font-bold text-accent">2.3 km</div>
+                <p className="mt-1 text-xs md:text-sm text-white/75">from Pai town</p>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-serif font-bold text-accent">24/7</div>
-                <p className="mt-2 text-sm text-white/75">direct support</p>
+                <div className="text-2xl md:text-3xl font-serif font-bold text-accent">24/7</div>
+                <p className="mt-1 text-xs md:text-sm text-white/75">direct support</p>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-serif font-bold text-accent">Fast WiFi</div>
-                <p className="mt-2 text-sm text-white/75">remote-work ready</p>
+                <div className="text-2xl md:text-3xl font-serif font-bold text-accent">Fast WiFi</div>
+                <p className="mt-1 text-xs md:text-sm text-white/75">remote-work ready</p>
               </div>
               <div>
-                <div className="text-3xl md:text-4xl font-serif font-bold text-accent">Long stays</div>
-                <p className="mt-2 text-sm text-white/75">monthly rates available</p>
+                <div className="text-2xl md:text-3xl font-serif font-bold text-accent">5 rooms</div>
+                <p className="mt-1 text-xs md:text-sm text-white/75">small &amp; private</p>
               </div>
             </div>
           </AnimatedSection>
@@ -101,7 +101,7 @@ export default function PageContent() {
       <section id="rooms" className="section-padding bg-light">
         <div className="section-container">
           <AnimatedSection>
-            <h2 className="text-4xl font-bold text-center text-primary mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-primary mb-4">
               {t.roomsTitle}
             </h2>
             <p className="text-center text-gray-600 mb-12">
@@ -124,6 +124,8 @@ export default function PageContent() {
                 name={t.roomName}
                 features={t.roomFeatures}
                 price="฿550 - ฿990 / night"
+                priceLabel={t.roomPrice}
+                primaryBookText={t.roomBookPrimary}
                 amenitiesLabel={t.roomAmenities}
                 bookLineText={t.roomBookLine}
                 bookWhatsAppText={t.roomBookWhatsApp}
@@ -140,7 +142,7 @@ export default function PageContent() {
       </AnimatedSection>
 
       {/* ABOUT */}
-      <section className="section-padding bg-light">
+      <section id="about" className="section-padding scroll-mt-20 bg-light">
         <div className="section-container">
           <AnimatedSection>
             <h2 className="text-4xl font-bold text-center text-primary mb-12">
@@ -152,7 +154,7 @@ export default function PageContent() {
             <div className="space-y-4">
               <AnimatedSection>
                 <div className="flex items-start">
-                  <span className="text-3xl mr-4">🌿</span>
+                  <iconify-icon className="mr-4 text-3xl text-accent" icon="material-symbols:park" width="32" height="32" aria-hidden="true" />
                   <div>
                     <h3 className="font-bold text-primary mb-1">
                       {t.aboutPeaceful}
@@ -166,7 +168,7 @@ export default function PageContent() {
 
               <AnimatedSection>
                 <div className="flex items-start">
-                  <span className="text-3xl mr-4">🛏️</span>
+                  <iconify-icon className="mr-4 text-3xl text-accent" icon="material-symbols:bed" width="32" height="32" aria-hidden="true" />
                   <div>
                     <h3 className="font-bold text-primary mb-1">
                       {t.aboutClean}
@@ -180,7 +182,7 @@ export default function PageContent() {
 
               <AnimatedSection>
                 <div className="flex items-start">
-                  <span className="text-3xl mr-4">🌍</span>
+                  <iconify-icon className="mr-4 text-3xl text-accent" icon="material-symbols:landscape" width="32" height="32" aria-hidden="true" />
                   <div>
                     <h3 className="font-bold text-primary mb-1">
                       {t.aboutNature}
@@ -208,7 +210,7 @@ export default function PageContent() {
 
               <AnimatedSection>
                 <div className="flex items-start">
-                  <span className="text-3xl mr-4">💻</span>
+                  <iconify-icon className="mr-4 text-3xl text-accent" icon="material-symbols:laptop-mac" width="32" height="32" aria-hidden="true" />
                   <div>
                     <h3 className="font-bold text-primary mb-1">
                       {t.aboutDigital}
@@ -222,7 +224,7 @@ export default function PageContent() {
 
               <AnimatedSection>
                 <div className="flex items-start">
-                  <span className="text-3xl mr-4">💰</span>
+                  <iconify-icon className="mr-4 text-3xl text-accent" icon="material-symbols:sell" width="32" height="32" aria-hidden="true" />
                   <div>
                     <h3 className="font-bold text-primary mb-1">
                       {t.aboutPrice}
@@ -252,7 +254,7 @@ export default function PageContent() {
       </section>
 
       {/* REVIEWS */}
-      <section className="section-padding bg-white">
+      <section id="reviews" className="section-padding scroll-mt-20 bg-white">
         <div className="section-container">
           <AnimatedSection>
             <h2 className="text-4xl font-bold text-center text-primary mb-4">
@@ -302,7 +304,7 @@ export default function PageContent() {
                 {/* Content Side */}
                 <div className="p-8 md:p-12 flex flex-col justify-center">
                   <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase w-fit">
-                    <span>🗺️</span> Written by Locals
+                    <iconify-icon icon="material-symbols:map-outline" width="16" height="16" aria-hidden="true" /> Written by Locals
                   </div>
                   <h2 className="text-3xl md:text-4xl font-serif font-bold text-primary mb-3">
                     The Pai Travel Guide
@@ -312,13 +314,13 @@ export default function PageContent() {
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                     {[
-                      { icon: "🏔️", label: "Itineraries" },
-                      { icon: "🌊", label: "Waterfalls" },
-                      { icon: "🍜", label: "Food Guide" },
-                      { icon: "🌅", label: "Sunset Spots" },
+                      { icon: "material-symbols:route", label: "Itineraries" },
+                      { icon: "material-symbols:water", label: "Waterfalls" },
+                      { icon: "material-symbols:restaurant", label: "Food Guide" },
+                      { icon: "material-symbols:wb-sunny", label: "Sunset Spots" },
                     ].map((item) => (
                       <div key={item.label} className="flex flex-col items-center gap-1 p-2 bg-gray-50 rounded-lg">
-                        <span className="text-2xl">{item.icon}</span>
+                        <iconify-icon icon={item.icon} width="26" height="26" aria-hidden="true" />
                         <span className="text-xs text-gray-600 font-medium">{item.label}</span>
                       </div>
                     ))}
@@ -345,7 +347,7 @@ export default function PageContent() {
       </AnimatedSection>
 
       {/* LOCATION */}
-      <section className="section-padding bg-light">
+      <section id="location" className="section-padding scroll-mt-20 bg-light">
         <div className="section-container">
           <AnimatedSection>
             <h2 className="text-4xl font-bold text-center text-primary mb-4">
@@ -420,7 +422,7 @@ export default function PageContent() {
                 href={`tel:${phoneNumber}`}
                 className="cta-primary bg-accent text-primary"
               >
-                ☎️ {t.ctaCallNow} {phoneNumber}
+                <iconify-icon icon="material-symbols:call" width="18" height="18" aria-hidden="true" /> {t.ctaCallNow} {phoneNumber}
               </a>
 
               <a
@@ -428,7 +430,7 @@ export default function PageContent() {
                 target="_blank"
                 className="cta-primary bg-green-500 text-white"
               >
-                💬 {t.ctaWhatsApp}
+                <iconify-icon icon="simple-icons:whatsapp" width="18" height="18" aria-hidden="true" /> {t.ctaWhatsApp}
               </a>
 
               <a
@@ -436,7 +438,7 @@ export default function PageContent() {
                 target="_blank"
                 className="cta-primary bg-blue-500 text-white"
               >
-                📱 {t.ctaLINE}
+                <iconify-icon icon="simple-icons:line" width="18" height="18" aria-hidden="true" /> {t.ctaLINE}
               </a>
             </div>
 

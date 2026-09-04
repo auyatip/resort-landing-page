@@ -49,12 +49,12 @@ const galleryImages: GalleryImage[] = [
   { src: "/images/kitchen1.jpg", alt: "Shared kitchen facility at A-Thip House Pai", category: ["kitchen"] },
 ];
 
-const categoryConfig: { key: GalleryCategory; emoji: string }[] = [
-  { key: "all", emoji: "🖼️" },
-  { key: "exterior", emoji: "🏠" },
-  { key: "rooms", emoji: "🛏️" },
-  { key: "bathroom", emoji: "🚿" },
-  { key: "kitchen", emoji: "🍳" },
+const categoryConfig: { key: GalleryCategory; icon: string }[] = [
+  { key: "all", icon: "material-symbols:collections" },
+  { key: "exterior", icon: "material-symbols:home" },
+  { key: "rooms", icon: "material-symbols:bed" },
+  { key: "bathroom", icon: "material-symbols:shower" },
+  { key: "kitchen", icon: "material-symbols:countertops" },
 ];
 
 export default function Gallery() {
@@ -170,7 +170,7 @@ export default function Gallery() {
         {/* ========== Category Filter Tabs ========== */}
         <div className="mb-6 md:mb-10 overflow-x-auto pb-1">
           <div className="flex w-max min-w-full justify-start md:justify-center gap-2 px-1">
-            {categoryConfig.map(({ key, emoji }) => {
+            {categoryConfig.map(({ key, icon }) => {
               const count = key === "all"
                 ? galleryImages.length
                 : galleryImages.filter((img) => img.category.includes(key)).length;
@@ -184,7 +184,7 @@ export default function Gallery() {
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:scale-102"
                   }`}
                 >
-                  <span className="text-base">{emoji}</span>
+                  <iconify-icon icon={icon} width="18" height="18" aria-hidden="true" />
                   <span>{getCategoryLabel(key)}</span>
                   <span className={`text-xs px-1.5 py-0.5 rounded-full ${
                     activeCategory === key

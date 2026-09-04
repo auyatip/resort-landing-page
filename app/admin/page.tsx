@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 interface AnalyticsData {
@@ -46,12 +47,15 @@ interface AnalyticsData {
 }
 
 export default function AdminPage() {
+  const searchParams = useSearchParams();
+  const section = searchParams.get("section") || "overview";
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [closureForm, setClosureForm] = useState({ roomNumber: 1, checkIn: "", checkOut: "", note: "" });
+  const [visitorPage, setVisitorPage] = useState(1);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -193,12 +197,16 @@ export default function AdminPage() {
   const maxDateVisits = data
     ? Math.max(...Object.values(data.visitsByDate), 1)
     : 1;
+  const visitorPageSize = 5;
+  const visitorTotalPages = Math.max(1, Math.ceil((data?.recentVisitors.length || 0) / visitorPageSize));
+  const currentVisitorPage = Math.min(visitorPage, visitorTotalPages);
+  const recentVisitors = data?.recentVisitors.slice((currentVisitorPage - 1) * visitorPageSize, currentVisitorPage * visitorPageSize) || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+    <div className={`admin-shell admin-section-${section} min-h-screen bg-[#f4f0e7] text-[#20352b]`}>
       {/* Header */}
-      <div className="bg-black/30 border-b border-white/10 sticky top-0 z-10 backdrop-blur-lg">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="admin-header bg-[#20352b] border-b border-[#20352b]/20 sticky top-0 z-10 shadow-lg shadow-[#20352b]/10">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <Link href="/admin/rooms" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold hover:bg-indigo-500">จัดการห้องพัก</Link>
             <span className="text-2xl">🏡</span>
@@ -207,7 +215,7 @@ export default function AdminPage() {
               <p className="text-gray-400 text-xs">Private Dashboard</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
             <button
               onClick={toggleBookings}
               className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${data?.bookingOpen ? "bg-green-600 hover:bg-green-500" : "bg-red-600 hover:bg-red-500"}`}
@@ -237,10 +245,39 @@ export default function AdminPage() {
             </button>
           </div>
         </div>
-      </div>
+      </header>
 
-        <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+        <div className="admin-content max-w-7xl mx-auto px-4 py-6 space-y-6">
+        <nav aria-label="Admin sections" className="sticky top-[73px] z-[9] -mx-4 flex gap-2 overflow-x-auto border-y border-white/10 bg-gray-900/95 px-4 py-3 backdrop-blur-lg md:mx-0 md:rounded-xl md:border md:px-3">
+          {[
+            ["overview", "Overview", "/admin"],
+            ["bookings", "Bookings", "/admin/bookings"],
+            ["rooms", "Room management", "/admin/rooms"],
+            ["pricing", "Pricing", "/admin/pricing"],
+            ["analytics", "Analytics", "/admin/analytics"],
+            ["visitors", "Visitors", "/admin/visitors"],
+          ].map(([key, label, href]) => (
+            <a key={key} href={href} className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition ${section === key ? "admin-nav-active bg-emerald-500/15 text-emerald-700" : "text-gray-300 hover:bg-white/10 hover:text-white"}`}>
+              {label}
+            </a>
+          ))}
+          <button type="button" onClick={() => { fetch("/api/admin/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "logout" }) }); setIsAuthenticated(false); setPassword(""); setData(null); }} className="mt-2 rounded-lg px-4 py-2 text-left text-sm font-semibold text-red-700 transition hover:bg-red-50">ออกจากระบบ</button>
+        </nav>
+
+        {section === "overview" && <section className="admin-today-grid grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-[#dfe7e1] bg-white p-5 shadow-sm"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#718078]">Today</p><div className="mt-3 flex items-end justify-between"><div><h2 className="text-lg font-semibold text-[#20352b]">การจองวันนี้</h2><p className="mt-1 text-sm text-gray-500">รายการที่เข้าพักวันนี้</p></div><strong className="text-4xl font-bold text-[#20352b]">{data?.bookings.filter((booking) => { const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Bangkok" }).format(new Date()); return booking.checkIn === today && booking.bookingStatus !== "cancelled"; }).length ?? 0}</strong></div></div>
+          <div className="rounded-2xl border border-[#dfe7e1] bg-white p-5 shadow-sm"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#a47d2e]">Check-in today</p><div className="mt-3 flex items-end justify-between"><div><h2 className="text-lg font-semibold text-[#20352b]">ห้องที่เช็คอินวันนี้</h2><p className="mt-1 text-sm text-gray-500">นับเฉพาะรายการที่ชำระเงินแล้ว</p></div><strong className="text-4xl font-bold text-[#a47d2e]">{data?.bookings.filter((booking) => { const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Bangkok" }).format(new Date()); return booking.checkIn === today && booking.bookingStatus === "confirmed" && booking.paymentStatus === "paid"; }).reduce((total, booking) => total + (booking.rooms || booking.roomNumbers?.length || 1), 0) ?? 0}</strong></div></div>
+        </section>}
+
+        {section === "overview" && <section id="dashboard-overview" className="scroll-mt-28 overflow-hidden rounded-3xl bg-[#20352b] p-6 text-white shadow-xl shadow-[#20352b]/15 md:p-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d8bd78]">A-Thip House · Operations</p><h2 className="mt-2 font-serif text-3xl font-bold md:text-4xl">Good day, Admin</h2><p className="mt-2 max-w-xl text-sm leading-6 text-emerald-50/70">ภาพรวมการจอง ห้องพัก และกิจกรรมบนเว็บไซต์ในจุดเดียว</p></div>
+            <div className="flex flex-wrap gap-2"><button type="button" onClick={handleRefresh} disabled={loading} className="rounded-xl bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20 disabled:opacity-50">{loading ? "กำลังโหลด…" : "รีเฟรชข้อมูล"}</button><button type="button" onClick={toggleBookings} className="rounded-xl bg-[#c49a42] px-4 py-2.5 text-sm font-semibold text-[#20352b] transition hover:bg-[#d7b45d]">{data?.bookingOpen ? "ปิดรับจอง" : "เปิดรับจอง"}</button><button type="button" onClick={() => { fetch("/api/admin/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "logout" }) }); setIsAuthenticated(false); setPassword(""); setData(null); }} className="rounded-xl border border-white/20 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">ออกจากระบบ</button></div>
+          </div>
+          <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4"><div className="rounded-2xl bg-white/10 p-4"><p className="text-xs text-emerald-50/60">การจองทั้งหมด</p><p className="mt-2 text-2xl font-bold">{data?.bookings.length ?? 0}</p></div><div className="rounded-2xl bg-white/10 p-4"><p className="text-xs text-emerald-50/60">ชำระเงินแล้ว</p><p className="mt-2 text-2xl font-bold text-[#d8bd78]">{data?.bookings.filter((booking) => booking.paymentStatus === "paid").length ?? 0}</p></div><div className="rounded-2xl bg-white/10 p-4"><p className="text-xs text-emerald-50/60">ห้องที่เปิดขาย</p><p className="mt-2 text-2xl font-bold">{data?.openRooms.length ?? 0}<span className="ml-1 text-sm font-normal text-emerald-50/60">/ 5</span></p></div><div className="rounded-2xl bg-white/10 p-4"><p className="text-xs text-emerald-50/60">ผู้เข้าชมวันนี้</p><p className="mt-2 text-2xl font-bold">{data?.todayVisits ?? 0}</p></div></div>
+        </section>}
+
+        <div id="rooms" className="scroll-mt-28 rounded-xl border border-white/10 bg-white/5 p-5">
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
             <div><h2 className="font-semibold text-white">Room sales</h2><p className="mt-1 text-xs text-gray-400">เปิด/ปิดขายรายห้องได้เอง ห้องที่มี booking เดิมยังไม่ถูกยกเลิก</p></div>
             <div className="flex flex-wrap gap-2">
@@ -265,10 +302,13 @@ export default function AdminPage() {
           <div className="mt-4 space-y-2">{data?.closures.map((closure) => <div key={closure.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-black/20 px-3 py-2 text-sm"><span className="text-gray-200">ห้อง {closure.roomNumber} · {closure.checkIn} ถึง {closure.checkOut}{closure.note ? ` · ${closure.note}` : ""}</span><button onClick={() => removeClosure(closure.id)} className="text-xs font-semibold text-red-300 hover:text-red-200">ยกเลิกการปิดขาย</button></div>)}{data?.closures.length === 0 && <p className="text-xs text-gray-500">ยังไม่มีช่วงวันที่ปิดขาย</p>}</div>
         </div>
 
-        <BookingTable bookings={data?.bookings || []} onCancel={cancelBooking} />
+        {error && <div role="alert" className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</div>}
+        {loading && <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-gray-300">กำลังอัปเดตข้อมูล…</div>}
+
+        <div id="bookings" className="scroll-mt-28"><BookingTableV2 bookings={data?.bookings || []} onCancel={cancelBooking} /></div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div id="analytics" className="scroll-mt-28 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
           <StatCard
             icon="👥"
             label="ผู้เข้าชมวันนี้"
@@ -403,7 +443,7 @@ export default function AdminPage() {
         </div>
 
         {/* Recent Visitors Table */}
-        <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+        <div id="visitors" className="scroll-mt-28 bg-white/5 rounded-xl border border-white/10 overflow-hidden">
           <div className="px-6 py-4 border-b border-white/10">
             <h3 className="text-sm text-gray-400">🕐 ผู้เข้าชมล่าสุด (100 คนล่าสุด)</h3>
           </div>
@@ -421,7 +461,7 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {data?.recentVisitors.map((v, i) => (
+                {recentVisitors.map((v, i) => (
                   <tr
                     key={v.id + i}
                     className="border-b border-white/5 hover:bg-white/5 transition-colors"
@@ -462,6 +502,14 @@ export default function AdminPage() {
                 )}
               </tbody>
             </table>
+          </div>
+          <div className="flex items-center justify-between border-t border-white/10 px-6 py-4 text-sm text-gray-400">
+            <span>แสดง {recentVisitors.length} จาก {data?.recentVisitors.length || 0} คน</span>
+            <div className="flex items-center gap-2">
+              <button type="button" disabled={currentVisitorPage === 1} onClick={() => setVisitorPage((value) => Math.max(1, value - 1))} className="rounded-lg border border-white/10 px-3 py-1.5 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30">ก่อนหน้า</button>
+              <span className="min-w-16 text-center text-gray-300">{currentVisitorPage} / {visitorTotalPages}</span>
+              <button type="button" disabled={currentVisitorPage === visitorTotalPages} onClick={() => setVisitorPage((value) => Math.min(visitorTotalPages, value + 1))} className="rounded-lg border border-white/10 px-3 py-1.5 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30">ถัดไป</button>
+            </div>
           </div>
         </div>
 
@@ -532,6 +580,60 @@ function BookingTable({ bookings: allBookings, onCancel }: { bookings: Analytics
         {bookings.length === 0 && <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">No bookings yet</td></tr>}
       </tbody></table></div>
     </div>
+  );
+}
+
+function BookingTableV2({ bookings: allBookings, onCancel }: { bookings: AnalyticsData["bookings"]; onCancel: (bookingId: string, refund: boolean) => void }) {
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("all");
+  const [date, setDate] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
+  const filteredBookings = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return allBookings.filter((booking) => {
+      const matchesQuery = !normalized || [booking.id, booking.guestName, booking.email, booking.phone].filter(Boolean).some((value) => String(value).toLowerCase().includes(normalized));
+      const bookingStatus = booking.paymentStatus === "paid" ? "paid" : booking.paymentStatus === "refunded" ? "refunded" : booking.bookingStatus === "cancelled" ? "cancelled" : "pending";
+      const matchesStatus = status === "all" || bookingStatus === status;
+      const matchesDate = !date || booking.checkIn <= date && booking.checkOut > date;
+      return matchesQuery && matchesStatus && matchesDate;
+    });
+  }, [allBookings, date, query, status]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredBookings.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const bookings = filteredBookings.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const activeFilters = (query ? 1 : 0) + (status !== "all" ? 1 : 0) + (date ? 1 : 0);
+  const resetFilters = () => { setQuery(""); setStatus("all"); setDate(""); setPage(1); };
+
+  function statusLabel(booking: AnalyticsData["bookings"][number]) {
+    if (booking.paymentStatus === "paid") return { text: "Paid", className: "bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-400/20" };
+    if (booking.paymentStatus === "refunded") return { text: "Refunded", className: "bg-sky-400/15 text-sky-300 ring-1 ring-sky-400/20" };
+    if (booking.bookingStatus === "cancelled") return { text: "Cancelled", className: "bg-red-400/15 text-red-300 ring-1 ring-red-400/20" };
+    return { text: "Pending", className: "bg-amber-400/15 text-amber-300 ring-1 ring-amber-400/20" };
+  }
+
+  return (
+    <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] shadow-xl shadow-black/10">
+      <div className="border-b border-white/10 p-5 md:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">Reservations</p><h2 className="mt-1 text-xl font-semibold text-white">Bookings</h2><p className="mt-1 text-sm text-gray-400">จัดการรายการจองล่าสุดและสถานะการชำระเงิน</p></div>
+          <div className="flex items-center gap-3 text-sm text-gray-400"><span>{filteredBookings.length} รายการ</span><span className="rounded-full bg-white/10 px-3 py-1">5 ห้อง</span></div>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
+          <label className="relative block"><span className="sr-only">ค้นหา booking</span><span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">⌕</span><input value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} placeholder="ค้นหาชื่อ, Booking ID, เบอร์โทร หรืออีเมล" className="w-full rounded-xl border border-white/10 bg-black/20 py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-gray-500 focus:border-emerald-400/60 focus:outline-none focus:ring-2 focus:ring-emerald-400/20" /></label>
+          <label className="block"><span className="sr-only">กรองสถานะ</span><select value={status} onChange={(event) => { setStatus(event.target.value); setPage(1); }} className="w-full rounded-xl border border-white/10 bg-gray-900 px-3 py-2.5 text-sm text-white focus:border-emerald-400/60 focus:outline-none"><option value="all">ทุกสถานะ</option><option value="paid">Paid</option><option value="pending">Pending</option><option value="cancelled">Cancelled</option><option value="refunded">Refunded</option></select></label>
+          <label className="block"><span className="sr-only">กรองวันที่เข้าพัก</span><input type="date" value={date} onChange={(event) => { setDate(event.target.value); setPage(1); }} className="w-full rounded-xl border border-white/10 bg-gray-900 px-3 py-2.5 text-sm text-white focus:border-emerald-400/60 focus:outline-none" /></label>
+          <button type="button" onClick={resetFilters} disabled={!activeFilters} className="rounded-xl border border-white/15 px-4 py-2.5 text-sm font-semibold text-gray-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40">ล้างตัวกรอง{activeFilters ? ` (${activeFilters})` : ""}</button>
+        </div>
+      </div>
+      <div className="overflow-x-auto"><table className="w-full min-w-[850px] text-sm"><thead className="bg-black/15"><tr className="border-b border-white/10 text-left text-xs uppercase tracking-wide text-gray-400"><th className="px-5 py-3 font-medium">Guest</th><th className="px-5 py-3 font-medium">Stay</th><th className="px-5 py-3 font-medium">Rooms</th><th className="px-5 py-3 font-medium">Contact</th><th className="px-5 py-3 text-right font-medium">Amount</th><th className="px-5 py-3 font-medium">Status</th><th className="px-5 py-3 text-right font-medium">Action</th></tr></thead><tbody>
+        {bookings.map((booking) => { const badge = statusLabel(booking); const rooms = booking.rooms || booking.roomNumbers?.length || 1; return <tr key={booking.id} className="border-b border-white/[0.06] transition hover:bg-white/[0.04]"><td className="max-w-[210px] px-5 py-4"><div className="truncate font-medium text-gray-100" title={booking.guestName}>{booking.guestName}</div><div className="mt-1 font-mono text-[11px] text-gray-500">{booking.id}</div></td><td className="whitespace-nowrap px-5 py-4 text-gray-300"><div>{booking.checkIn} → {booking.checkOut}</div><div className="mt-1 text-xs text-gray-500">{booking.nights} คืน</div></td><td className="px-5 py-4 text-gray-300">{rooms} ห้อง</td><td className="max-w-[190px] px-5 py-4"><div className="truncate text-gray-300" title={booking.phone || booking.email || "ไม่มีข้อมูลติดต่อ"}>{booking.phone || booking.email || "—"}</div></td><td className="whitespace-nowrap px-5 py-4 text-right font-semibold text-gray-100">฿{booking.amount.toLocaleString()}</td><td className="px-5 py-4"><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${badge.className}`}>{badge.text}</span></td><td className="px-5 py-4 text-right">{booking.bookingStatus !== "cancelled" && <button type="button" onClick={() => onCancel(booking.id, booking.paymentStatus === "paid")} className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-red-300 transition hover:bg-red-400/10 hover:text-red-200">{booking.paymentStatus === "paid" ? "Cancel & refund" : "Cancel"}</button>}</td></tr>; })}
+        {bookings.length === 0 && <tr><td colSpan={7} className="px-5 py-14 text-center"><div className="text-3xl">⌕</div><p className="mt-2 font-medium text-gray-300">ไม่พบรายการจอง</p><p className="mt-1 text-sm text-gray-500">ลองเปลี่ยนคำค้นหาหรือล้างตัวกรอง</p></td></tr>}
+      </tbody></table></div>
+      <div className="flex flex-col gap-3 border-t border-white/10 px-5 py-4 text-sm text-gray-400 sm:flex-row sm:items-center sm:justify-between"><span>แสดง {bookings.length} จาก {filteredBookings.length} รายการ</span><div className="flex items-center gap-2"><button type="button" disabled={currentPage === 1} onClick={() => setPage((value) => Math.max(1, value - 1))} className="rounded-lg border border-white/10 px-3 py-1.5 transition hover:bg-white/10 disabled:opacity-30">ก่อนหน้า</button><span className="min-w-16 text-center text-gray-300">{currentPage} / {totalPages}</span><button type="button" disabled={currentPage === totalPages} onClick={() => setPage((value) => Math.min(totalPages, value + 1))} className="rounded-lg border border-white/10 px-3 py-1.5 transition hover:bg-white/10 disabled:opacity-30">ถัดไป</button></div></div>
+    </section>
   );
 }
 
