@@ -1,8 +1,9 @@
 "use client";
 
 import { Suspense, useState, useEffect, useCallback, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import AdminNavigation from "../components/AdminNavigation";
 
 interface AnalyticsData {
   totalVisits: number;
@@ -48,9 +49,11 @@ interface AnalyticsData {
 
 function AdminPageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const section = searchParams.get("section") || "overview";
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -144,7 +147,8 @@ function AdminPageContent() {
           fetchData();
         }
       })
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => setCheckingSession(false));
   }, [fetchData]);
 
   useEffect(() => {
@@ -157,6 +161,10 @@ function AdminPageContent() {
   }, [isAuthenticated, fetchData]);
 
   // Login screen
+  if (checkingSession) {
+    return <div className="flex min-h-screen items-center justify-center bg-[#20352b] text-white">กำลังตรวจสอบสิทธิ์…</div>;
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-emerald-900 flex items-center justify-center p-4">
@@ -248,21 +256,8 @@ function AdminPageContent() {
       </header>
 
         <div className="admin-content max-w-7xl mx-auto px-4 py-6 space-y-6">
-        <nav aria-label="Admin sections" className="sticky top-[73px] z-[9] -mx-4 flex gap-2 overflow-x-auto border-y border-white/10 bg-gray-900/95 px-4 py-3 backdrop-blur-lg md:mx-0 md:rounded-xl md:border md:px-3">
-          {[
-            ["overview", "Overview", "/admin"],
-            ["bookings", "Bookings", "/admin/bookings"],
-            ["rooms", "Room management", "/admin/rooms"],
-            ["pricing", "Pricing", "/admin/pricing"],
-            ["analytics", "Analytics", "/admin/analytics"],
-            ["visitors", "Visitors", "/admin/visitors"],
-          ].map(([key, label, href]) => (
-            <a key={key} href={href} className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition ${section === key ? "admin-nav-active bg-emerald-500/15 text-emerald-700" : "text-gray-300 hover:bg-white/10 hover:text-white"}`}>
-              {label}
-            </a>
-          ))}
-          <button type="button" onClick={() => { fetch("/api/admin/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "logout" }) }); setIsAuthenticated(false); setPassword(""); setData(null); }} className="mt-2 rounded-lg px-4 py-2 text-left text-sm font-semibold text-red-700 transition hover:bg-red-50">ออกจากระบบ</button>
-        </nav>
+        <AdminNavigation active={section} />
+          
 
         {section === "overview" && <section className="admin-today-grid grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl border border-[#dfe7e1] bg-white p-5 shadow-sm"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#718078]">Today</p><div className="mt-3 flex items-end justify-between"><div><h2 className="text-lg font-semibold text-[#20352b]">การจองวันนี้</h2><p className="mt-1 text-sm text-gray-500">รายการที่เข้าพักวันนี้</p></div><strong className="text-4xl font-bold text-[#20352b]">{data?.bookings.filter((booking) => { const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Bangkok" }).format(new Date()); return booking.checkIn === today && booking.bookingStatus !== "cancelled"; }).length ?? 0}</strong></div></div>

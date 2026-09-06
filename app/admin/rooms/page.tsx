@@ -15,6 +15,7 @@ const nextDay = (key: string) => { const date = new Date(`${key}T00:00:00`); dat
 export default function RoomManagementPage() {
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [data, setData] = useState<RoomData | null>(null);
   const [month, setMonth] = useState(new Date());
   const [selectedRoom, setSelectedRoom] = useState(0);
@@ -36,6 +37,7 @@ export default function RoomManagementPage() {
     fetch("/api/admin/auth")
       .then((response) => response.json())
       .then((result) => { if (result.authenticated) { setAuthenticated(true); load(false).catch(() => setError("โหลดข้อมูลไม่สำเร็จ")); } })
+      .finally(() => setCheckingSession(false))
       .catch(() => undefined);
   }, []);
   useEffect(() => { if (authenticated) load().catch(() => setError("โหลดข้อมูลไม่สำเร็จ")); }, [month]);
@@ -67,6 +69,7 @@ export default function RoomManagementPage() {
   const addClosure = async (event: React.FormEvent) => { event.preventDefault(); if (!data || !form.checkIn || !form.checkOut || form.checkIn >= form.checkOut) return; try { await save({ ...data, closures: [...data.closures, { id: `C-${Date.now().toString(36)}`, ...form }] }); setForm({ ...form, checkIn: "", checkOut: "", note: "" }); } catch (e) { setError(e instanceof Error ? e.message : "บันทึกไม่สำเร็จ"); } };
   const removeClosure = async (id: string) => { if (!data) return; try { await save({ ...data, closures: data.closures.filter((closure) => closure.id !== id) }); } catch (e) { setError(e instanceof Error ? e.message : "บันทึกไม่สำเร็จ"); } };
 
+  if (checkingSession) return <main className="flex min-h-screen items-center justify-center bg-gray-950 text-white">กำลังตรวจสอบสิทธิ์…</main>;
   if (!authenticated) return <main className="flex min-h-screen items-center justify-center bg-gray-950 px-4"><form onSubmit={(event) => { event.preventDefault(); load().catch((e) => setError(e.message)); }} className="w-full max-w-sm rounded-2xl border border-white/10 bg-white/5 p-8"><h1 className="font-serif text-3xl font-bold text-white">จัดการห้องพัก</h1><p className="mt-2 text-sm text-gray-400">เข้าสู่ระบบด้วยรหัส Admin</p><input autoFocus type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Admin password" className="mt-6 w-full rounded-lg border border-white/10 bg-white/10 px-4 py-3 text-white" />{error && <p className="mt-3 text-sm text-red-300">{error}</p>}<button className="mt-5 w-full rounded-lg bg-green-600 px-4 py-3 font-semibold text-white">เข้าสู่ระบบ</button><Link href="/admin" className="mt-4 block text-center text-sm text-gray-400">กลับ Dashboard</Link></form></main>;
 
   return <main className="admin-room-page min-h-screen bg-gray-950 px-4 py-6 text-white md:px-8"><div className="mx-auto max-w-7xl"><div className="flex flex-wrap items-center justify-between gap-4"><div><Link href="/admin" className="text-sm text-gray-400">← Dashboard</Link><h1 className="mt-2 font-serif text-4xl font-bold">Room calendar</h1><p className="mt-1 text-sm text-gray-400">ดู booking และปรับจำนวนห้องที่เปิดขายรายวัน</p></div><div className="flex gap-2"><button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))} className="rounded-lg bg-white/10 px-4 py-2">←</button><button onClick={() => setMonth(new Date())} className="rounded-lg bg-white/10 px-4 py-2 text-sm">วันนี้</button><button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))} className="rounded-lg bg-white/10 px-4 py-2">→</button></div></div>

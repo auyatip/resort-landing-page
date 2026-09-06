@@ -17,7 +17,6 @@ export default function Navbar() {
     { href: "#rooms", label: "Rooms" },
     { href: "#gallery", label: "Gallery" },
     { href: "#about", label: "About" },
-    { href: "#reviews", label: "Reviews" },
     { href: "#faq", label: "FAQ" },
     { href: "#location", label: "Location" },
   ];

@@ -502,3 +502,28 @@ label input {
 
 @media (min-width: 768px) {
 }
+
+/* Admin visual system: quiet surfaces, clear hierarchy, generous controls. */
+.admin-shell,
+.admin-subpage-shell { font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif); }
+.admin-shell .admin-header { background: #20352b; }
+.admin-shell .admin-header h1 { letter-spacing: -0.025em; }
+.admin-shell .admin-header > div > div:last-child > button:last-child { display: none; }
+.admin-shell .admin-content { max-width: 1360px; }
+.admin-shell .admin-content > nav,
+.admin-subpage-shell aside nav { border: 1px solid #dfe7e1; background: rgba(255,255,255,.88); box-shadow: 0 8px 24px rgba(32,53,43,.06); }
+.admin-shell .admin-content > nav button,
+.admin-subpage-shell aside nav button { min-height: 42px; }
+.admin-shell section,
+.admin-subpage-shell main section { box-shadow: 0 8px 24px rgba(32,53,43,.045); }
+.admin-shell input:focus,
+.admin-shell select:focus,
+.admin-subpage-shell input:focus,
+.admin-subpage-shell select:focus { outline: none; border-color: #2d5038; box-shadow: 0 0 0 4px rgba(45,80,56,.12); }
+.admin-shell button,
+.admin-subpage-shell button { transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms ease; }
+.admin-shell button:active,
+.admin-subpage-shell button:active { transform: translateY(1px); }
+@media (prefers-reduced-motion: reduce) {
+  .admin-shell *, .admin-subpage-shell * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

@@ -269,13 +269,13 @@ export default function PageContent() {
       </section>
 
       {/* REVIEWS */}
-      <section id="reviews" className="section-padding scroll-mt-20 bg-white">
+      <section id="reviews" className="py-16 md:py-20 scroll-mt-20 bg-white">
         <div className="section-container">
           <AnimatedSection>
-            <h2 className="text-4xl font-bold text-center text-primary mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-center text-primary mb-3">
               {t.reviewsTitle}
             </h2>
-            <p className="text-center text-gray-600 mb-12">
+            <p className="text-center text-gray-600 mb-8">
               {t.reviewsSubtitle}
             </p>
           </AnimatedSection>
@@ -284,14 +284,6 @@ export default function PageContent() {
             <div className="grid md:grid-cols-3 gap-6">
               {reviews.slice(0, 3).map((review, idx) => (
                 <ReviewCard key={idx} {...review} />
-              ))}
-            </div>
-          </AnimatedSection>
-
-          <AnimatedSection>
-            <div className="grid md:grid-cols-2 gap-6 mt-6">
-              {reviews.slice(3).map((review, idx) => (
-                <ReviewCard key={idx + 3} {...review} />
               ))}
             </div>
           </AnimatedSection>
