@@ -828,7 +828,7 @@ const guide1WeekInPai: GuideContent = {
   slug: "1-week-in-pai",
   description: "A complete 7-day Pai itinerary covering everything from temples to hidden gems, with time for slow living and spontaneous adventures.",
   metaDescription: "One week in Pai itinerary: 7 days of temples, waterfalls, hot springs, viewpoints, local food, and hidden gems. Written by locals. Updated 2026.",
-  heroImage: "/Guide/มหฺ_ปณฺฑิโต-Pai_temples.jpg",
+  heroImage: "/Guide/Pai_templess.jpg",
   heroImageAlt: "Beautiful Pai temple with mountain backdrop",
   heroImageCredit: "Mahā Paṇḍito",
   category: "Itinerary",
