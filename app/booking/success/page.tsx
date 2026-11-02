@@ -121,9 +121,10 @@ function BookingSuccessContent() {
           <section className="overflow-hidden rounded-3xl bg-white shadow-xl">
             <div className="bg-primary px-7 py-8 text-white md:px-10">
               <p className="text-4xl">✓</p>
-              <h1 className="mt-3 font-serif text-3xl font-bold">{confirmed ? t.confirmed : t.receipt}</h1>
+              <h1 className="mt-3 font-serif text-3xl font-bold">{confirmed ? t.confirmed : (lang === "th" ? "กำลังตรวจสอบการชำระเงิน" : "Payment received — verifying your booking")}</h1>
               <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/75">
                 {confirmed ? t.confirmedText : t.processing}
+                {!confirmed && <span className="mt-4 block rounded-xl bg-amber-400/15 px-4 py-3 font-semibold text-amber-100">{lang === "th" ? "การจองยังไม่ยืนยัน โปรดเก็บ Booking ID นี้ไว้ เมื่อยืนยันแล้วคุณจะได้รับอีเมล และสามารถรีเฟรชหน้านี้เพื่อตรวจสอบสถานะล่าสุดได้" : "Your booking is not confirmed yet. Keep this Booking ID. You will receive an email once it is confirmed, and you can refresh this page to check the latest status."}</span>}
               </p>
             </div>
             <div className="p-7 md:p-10">

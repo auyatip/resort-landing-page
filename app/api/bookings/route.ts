@@ -4,6 +4,7 @@ import { Redis } from "@upstash/redis";
 import { BOOKING_HOLD_MINUTES, Booking, compactBookings, expireUnpaidBookings, getAvailableRoomNumbers, getNights, getStayDiscount, getStayPricing, isBookingEnabled, retryAsync, RoomClosure, ROOM_COUNT } from "../../lib/booking";
 import { getPricingConfig, getStayPricingFromConfig } from "../../lib/pricing-server";
 import { consumeRateLimit, getClientIp } from "../../lib/rate-limit";
+import { expireStripeCheckoutSession } from "../../lib/stripe-booking";
 
 const redis = Redis.fromEnv();
 const BOOKINGS_KEY = "bookings";
@@ -13,6 +14,11 @@ const BOOKING_LOCK_KEY = "booking-create-lock";
 async function getBookings() {
   const stored: Booking[] = (await redis.get(BOOKINGS_KEY)) || [];
   const result = expireUnpaidBookings(stored);
+  const expired = stored.filter((booking) => booking.bookingStatus === "pending" && booking.paymentStatus === "pending" && new Date(booking.holdUntil) <= new Date());
+  await Promise.all(expired.map(async (booking) => {
+    try { await expireStripeCheckoutSession(booking.paymentReference); }
+    catch (error) { console.error("Unable to expire Stripe Checkout session:", { bookingId: booking.id, error }); }
+  }));
   const compacted = compactBookings(result.bookings);
   if (result.changed || compacted.length !== result.bookings.length) await redis.set(BOOKINGS_KEY, compacted);
   return compacted;
@@ -104,13 +110,14 @@ export async function POST(request: NextRequest) {
     const nights = getNights(checkIn, checkOut);
 
     if (!firstName || !lastName) return jsonError("Please enter your first and last name.");
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) return jsonError("Please enter a valid email address.");
     if (!phone) return jsonError("Please enter your phone number or WhatsApp.");
     if (!policyAccepted) return jsonError("Please agree to the Booking & Cancellation Policy.");
     if (email && !/^\S+@\S+\.\S+$/.test(email)) return jsonError("Please enter a valid email address.");
     if (!/^\d{4}-\d{2}-\d{2}$/.test(checkIn) || !/^\d{4}-\d{2}-\d{2}$/.test(checkOut) || nights < 1 || nights > 90) return jsonError("Please choose valid check-in and check-out dates.");
     if (new Date(`${checkIn}T00:00:00Z`) < new Date(new Date().toISOString().slice(0, 10) + "T00:00:00Z")) return jsonError("Check-in cannot be in the past.");
 
-    const rate = await consumeRateLimit(`booking-create:${getClientIp(request)}`, 5, 10 * 60);
+    const rate = await consumeRateLimit(`booking-create:${getClientIp(request)}`, 10, 10 * 60);
     if (!rate.allowed) {
       const response = jsonError("Too many booking attempts. Please try again later.", 429);
       response.headers.set("Retry-After", String(rate.retryAfter));

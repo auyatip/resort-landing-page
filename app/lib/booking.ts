@@ -125,6 +125,7 @@ export interface Booking {
   stripeEventId?: string;
   refundStatus?: RefundStatus;
   adminEmailSentAt?: string;
+  customerEmailSentAt?: string;
   latePayment?: boolean;
 }
 

@@ -49,6 +49,38 @@ async function sendAdminBookingEmail(booking: Booking) {
   return true;
 }
 
+async function sendCustomerBookingEmail(booking: Booking) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || !booking.email) return false;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const subject = "Booking confirmed " + booking.id + " — A-Thip House";
+  const text = [
+    "Your booking has been paid and confirmed.",
+    "",
+    "Booking ID: " + booking.id,
+    "Guest: " + booking.guestName,
+    "Rooms: #" + (booking.roomNumbers?.join(", #") || booking.roomNumber),
+    "Check-in: " + booking.checkIn + " from 14:00",
+    "Check-out: " + booking.checkOut + " by 12:00",
+    "Nights: " + booking.nights,
+    "Total paid: THB " + booking.amount.toLocaleString(),
+    "",
+    "View your booking receipt: " + siteUrl + "/booking/success?booking=" + booking.receiptToken,
+    "",
+    "If you need help, please contact A-Thip House.",
+  ].join("\n");
+  const html = "<h2>Booking confirmed</h2><p>Your payment has been received and your stay is confirmed.</p><table>" +
+    [["Booking ID", booking.id], ["Guest", booking.guestName], ["Rooms", "#" + (booking.roomNumbers?.join(", #") || booking.roomNumber)], ["Check-in", booking.checkIn + " from 14:00"], ["Check-out", booking.checkOut + " by 12:00"], ["Nights", String(booking.nights)], ["Total paid", "THB " + booking.amount.toLocaleString()]].map(([label, value]) => "<tr><td style=\"padding:6px 16px 6px 0\"><strong>" + label + "</strong></td><td style=\"padding:6px 0\">" + escapeHtml(value) + "</td></tr>").join("") +
+    "</table><p><a href=\"" + escapeHtml(siteUrl + "/booking/success?booking=" + booking.receiptToken) + "\">View booking receipt</a></p>";
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json", "Idempotency-Key": "booking-customer-confirmed-" + booking.id },
+    body: JSON.stringify({ from: process.env.RESEND_FROM_EMAIL || "A-Thip House <onboarding@resend.dev>", to: [booking.email], subject, text, html }),
+  });
+  if (!response.ok) throw new Error("Customer Resend email failed: " + await response.text());
+  return true;
+}
+
 function verifyStripeSignature(payload: string, signature: string, secret: string) {
   const timestamp = signature.split(",").find((part) => part.startsWith("t="))?.slice(2);
   const v1 = signature.split(",").find((part) => part.startsWith("v1="))?.slice(3);
@@ -103,7 +135,7 @@ export async function POST(request: NextRequest) {
           console.error("Stripe webhook booking not found; asking Stripe to retry:", bookingId);
           return NextResponse.json({ received: false }, { status: 500 });
         }
-        if (current.stripeEventId === event.id && current.adminEmailSentAt) return NextResponse.json({ received: true });
+        if (current.stripeEventId === event.id && current.adminEmailSentAt && current.customerEmailSentAt) return NextResponse.json({ received: true });
         if (current.paymentReference && current.paymentReference !== session.id) {
           console.error("Stripe checkout session does not match booking:", { bookingId, expected: current.paymentReference, received: session.id });
           return NextResponse.json({ received: false }, { status: 400 });
@@ -136,8 +168,14 @@ export async function POST(request: NextRequest) {
         await redis.set("bookings", updated);
         const emailSent = await sendAdminBookingEmail(confirmedBooking);
         console.log("Admin booking email result:", { bookingId, sent: emailSent });
+        const customerEmailSent = await sendCustomerBookingEmail(confirmedBooking);
+        console.log("Customer booking email result:", { bookingId, sent: customerEmailSent });
         if (emailSent) {
           await redis.set("bookings", updated.map((booking) => booking.id === bookingId ? { ...booking, adminEmailSentAt: new Date().toISOString() } : booking));
+        }
+        if (customerEmailSent) {
+          const latestBookings: Booking[] = (await redis.get("bookings")) || updated;
+          await redis.set("bookings", latestBookings.map((booking) => booking.id === bookingId ? { ...booking, customerEmailSentAt: new Date().toISOString() } : booking));
         }
       } else {
         console.warn("Stripe checkout completed without metadata.booking_id");
