@@ -6,7 +6,7 @@ const redis = Redis.fromEnv();
 
 export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
   const bookings: Booking[] = (await redis.get("bookings")) || [];
-  const booking = bookings.find((item) => item.id === params.id);
+  const booking = bookings.find((item) => item.receiptToken === params.id);
   if (!booking) return NextResponse.json({ success: false, message: "Booking not found" }, { status: 404 });
   return NextResponse.json({
     success: true,

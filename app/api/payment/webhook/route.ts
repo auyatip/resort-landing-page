@@ -57,6 +57,23 @@ function verifyStripeSignature(payload: string, signature: string, secret: strin
   return expected.length === v1.length && timingSafeEqual(Buffer.from(expected), Buffer.from(v1));
 }
 
+async function refundLatePayment(paymentIntent: string, bookingId: string) {
+  const secret = process.env.STRIPE_SECRET_KEY;
+  if (!secret) throw new Error("Stripe is not configured for late-payment refunds");
+  const response = await fetch("https://api.stripe.com/v1/refunds", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${secret}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Idempotency-Key": `late-payment-refund-${bookingId}`,
+    },
+    body: new URLSearchParams({ payment_intent: paymentIntent }),
+  });
+  if (!response.ok) throw new Error("Late payment refund failed: " + await response.text());
+  const refund = await response.json();
+  return refund.status === "succeeded" || refund.status === "pending" ? refund.status as "succeeded" | "pending" : "failed";
+}
+
 export async function POST(request: NextRequest) {
   console.log("Stripe webhook request received");
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -82,7 +99,15 @@ export async function POST(request: NextRequest) {
       if (bookingId) {
         const bookings: Booking[] = (await redis.get("bookings")) || [];
         const current = bookings.find((booking) => booking.id === bookingId);
-        if (!current) return NextResponse.json({ received: true });
+        if (!current) {
+          console.error("Stripe webhook booking not found; asking Stripe to retry:", bookingId);
+          return NextResponse.json({ received: false }, { status: 500 });
+        }
+        if (current.stripeEventId === event.id && current.adminEmailSentAt) return NextResponse.json({ received: true });
+        if (current.paymentReference && current.paymentReference !== session.id) {
+          console.error("Stripe checkout session does not match booking:", { bookingId, expected: current.paymentReference, received: session.id });
+          return NextResponse.json({ received: false }, { status: 400 });
+        }
         if (session.payment_status !== "paid" || Number(session.amount_total) !== current.amount * 100 || String(session.currency || "").toLowerCase() !== "thb") {
           console.error("Stripe checkout validation failed:", { bookingId, paymentStatus: session.payment_status, amountTotal: session.amount_total, currency: session.currency });
           return NextResponse.json({ received: false }, { status: 400 });
@@ -91,13 +116,22 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ received: true });
         }
         if (current.bookingStatus === "cancelled") {
+          const paymentIntent = typeof session.payment_intent === "string" ? session.payment_intent : "";
+          let refundStatus: "succeeded" | "pending" | "failed" = "failed";
+          if (paymentIntent) {
+            try {
+              refundStatus = await refundLatePayment(paymentIntent, bookingId);
+            } catch (error) {
+              console.error("Late payment refund requires manual review:", { bookingId, error });
+            }
+          }
           await redis.set("bookings", bookings.map((booking) => booking.id === bookingId
-            ? { ...booking, paymentStatus: "paid" as const, paymentReference: session.payment_intent || booking.paymentReference, latePayment: true }
+            ? { ...booking, paymentStatus: refundStatus === "succeeded" ? "refunded" as const : "paid" as const, paymentReference: paymentIntent || booking.paymentReference, latePayment: true, refundStatus, stripeEventId: event.id }
             : booking));
           console.error("Payment received after booking expired or was cancelled:", bookingId);
-          return NextResponse.json({ received: true });
+          return NextResponse.json({ received: refundStatus !== "failed" }, { status: refundStatus === "failed" ? 500 : 200 });
         }
-        const confirmedBooking: Booking = { ...current, bookingStatus: "confirmed", paymentStatus: "paid", paymentReference: session.payment_intent || current.paymentReference };
+        const confirmedBooking: Booking = { ...current, bookingStatus: "confirmed", paymentStatus: "paid", paymentReference: session.payment_intent || current.paymentReference, stripeEventId: event.id };
         const updated = bookings.map((booking) => booking.id === bookingId ? confirmedBooking : booking);
         await redis.set("bookings", updated);
         const emailSent = await sendAdminBookingEmail(confirmedBooking);

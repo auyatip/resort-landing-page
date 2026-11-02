@@ -4,13 +4,17 @@ import { Booking } from "../../../lib/booking";
 import { isAdminAuthorized } from "../../../lib/admin-auth";
 
 const redis = Redis.fromEnv();
-async function refundPayment(paymentIntent: string) {
+async function refundPayment(paymentIntent: string, bookingId: string) {
   const secret = process.env.STRIPE_SECRET_KEY;
   if (!secret) throw new Error("Stripe is not configured");
   const params = new URLSearchParams({ payment_intent: paymentIntent });
   const response = await fetch("https://api.stripe.com/v1/refunds", {
     method: "POST",
-    headers: { Authorization: `Bearer ${secret}`, "Content-Type": "application/x-www-form-urlencoded" },
+    headers: {
+      Authorization: `Bearer ${secret}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Idempotency-Key": `booking-refund-${bookingId}`,
+    },
     body: params,
   });
   if (!response.ok) throw new Error("Stripe refund failed");
@@ -25,16 +29,18 @@ export async function POST(request: NextRequest) {
     const bookings: Booking[] = (await redis.get("bookings")) || [];
     const booking = bookings.find((item) => item.id === bookingId);
     if (!booking) return NextResponse.json({ success: false, message: "Booking not found" }, { status: 404 });
-    if (booking.bookingStatus === "cancelled") return NextResponse.json({ success: true, booking });
+    if (booking.bookingStatus === "cancelled" && (action === "cancel" || booking.paymentStatus === "refunded" || booking.refundStatus === "succeeded")) {
+      return NextResponse.json({ success: true, booking });
+    }
 
     let paymentStatus = booking.paymentStatus;
     if (action === "refund") {
       if (booking.paymentStatus !== "paid" || !booking.paymentReference) return NextResponse.json({ success: false, message: "This booking has no refundable payment" }, { status: 400 });
-      const refund = await refundPayment(booking.paymentReference);
+      const refund = await refundPayment(booking.paymentReference, booking.id);
       if (refund.status !== "succeeded" && refund.status !== "pending") throw new Error("Refund was not accepted");
       paymentStatus = "refunded";
     }
-    const updatedBooking = { ...booking, bookingStatus: "cancelled" as const, paymentStatus };
+    const updatedBooking = { ...booking, bookingStatus: "cancelled" as const, paymentStatus, ...(action === "refund" ? { refundStatus: "succeeded" as const } : {}) };
     await redis.set("bookings", bookings.map((item) => item.id === bookingId ? updatedBooking : item));
     return NextResponse.json({ success: true, booking: updatedBooking });
   } catch (error) {

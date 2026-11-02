@@ -11,7 +11,8 @@ export const LOGIN_FAILURE_WINDOW = 15 * 60;
 const redis = Redis.fromEnv();
 
 export function getRequestIp(request: NextRequest) {
-  return request.headers.get("x-forwarded-for")?.split(",")[0].trim()
+  return request.headers.get("x-vercel-forwarded-for")?.split(",")[0].trim()
+    || request.headers.get("x-forwarded-for")?.split(",")[0].trim()
     || request.headers.get("x-real-ip")
     || "unknown";
 }

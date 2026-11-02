@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_SESSION_COOKIE, clearLoginFailures, createAdminSession, getLoginFailureCount, getRequestIp, isValidAdminSession, LOGIN_FAILURE_LIMIT, LOGIN_FAILURE_WINDOW, registerLoginFailure, SESSION_MAX_AGE, verifyAdminPassword } from "../../../lib/admin-auth";
+import { consumeRateLimit } from "../../../lib/rate-limit";
 
 export async function GET(request: NextRequest) {
   return NextResponse.json({ authenticated: isValidAdminSession(request.cookies.get(ADMIN_SESSION_COOKIE)?.value) });
@@ -13,6 +14,13 @@ export async function POST(request: NextRequest) {
     return response;
   }
   const ip = getRequestIp(request);
+  const attemptRate = await consumeRateLimit(`admin-login-attempts:${ip}`, 20, LOGIN_FAILURE_WINDOW);
+  if (!attemptRate.allowed) {
+    return NextResponse.json({ success: false, message: "Too many login attempts. Try again in 15 minutes." }, {
+      status: 429,
+      headers: { "Retry-After": String(attemptRate.retryAfter) },
+    });
+  }
   const failures = await getLoginFailureCount(ip);
   if (failures >= LOGIN_FAILURE_LIMIT) {
     return NextResponse.json({ success: false, message: "Too many failed attempts. Try again in 15 minutes." }, {

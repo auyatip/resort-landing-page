@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAdminAuthorized } from "../../lib/admin-auth";
 import { getPricingConfig, PricingConfig } from "../../lib/pricing-server";
 
-export async function GET() { return NextResponse.json({ success: true, pricing: await getPricingConfig() }); }
+export async function GET() {
+  const response = NextResponse.json({ success: true, pricing: await getPricingConfig() });
+  response.headers.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+  return response;
+}
 
 export async function POST(request: NextRequest) {
   if (!isAdminAuthorized(request)) return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });

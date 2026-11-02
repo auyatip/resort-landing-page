@@ -2,6 +2,29 @@
 export const ROOM_PRICE_THB = 550;
 export const ROOM_COUNT = 5;
 export const BOOKING_HOLD_MINUTES = 15;
+/** Keep the single-array storage bounded until bookings move to per-record keys. */
+export const MAX_STORED_BOOKINGS = 2000;
+export const LONG_STAY_DISCOUNT_NIGHTS = 7;
+export const LONG_STAY_DISCOUNT_RATE = 0.1;
+
+export async function retryAsync<T>(operation: () => Promise<T>, attempts = 3, delayMs = 250) {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts - 1) await new Promise((resolve) => setTimeout(resolve, delayMs * (attempt + 1)));
+    }
+  }
+  throw lastError;
+}
+
+export function getStayDiscount(subtotal: number, nights: number) {
+  const rate = nights >= LONG_STAY_DISCOUNT_NIGHTS ? LONG_STAY_DISCOUNT_RATE : 0;
+  const discount = Math.round(subtotal * rate);
+  return { rate, discount, total: subtotal - discount };
+}
 
 /** Environment kill switch for temporarily disabling public bookings. */
 export function isBookingEnabled() {
@@ -10,19 +33,19 @@ export function isBookingEnabled() {
 
 export const NIGHTLY_RATES_THB = {
   default: 550,
-  january: 850,
-  february: 850,
+  january: 800,
+  february: 700,
   march: 700,
-  april: 550,
-  may: 550,
-  june: 550,
-  july: 550,
-  august: 550,
+  april: 500,
+  may: 500,
+  june: 500,
+  july: 500,
+  august: 500,
   september: 500,
-  october: 750,
-  november: 850,
-  december: 900,
-  newYear: 990,
+  october: 600,
+  november: 700,
+  december: 800,
+  newYear: 950,
 } as const;
 
 /** Returns the rate for the night beginning on a YYYY-MM-DD date. */
@@ -73,6 +96,7 @@ export function getStayPricingWithRates(checkIn: string, checkOut: string, rates
 
 export type BookingStatus = "pending" | "confirmed" | "cancelled";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
+export type RefundStatus = "pending" | "succeeded" | "failed";
 
 export interface Booking {
   id: string;
@@ -80,17 +104,26 @@ export interface Booking {
   roomNumbers?: number[];
   rooms?: number;
   guestName: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
-  phone: string;
+  phone?: string;
+  policyAcceptedAt?: string;
   checkIn: string;
   checkOut: string;
   nights: number;
   amount: number;
+  subtotal?: number;
+  discount?: number;
+  discountRate?: number;
   bookingStatus: BookingStatus;
   paymentStatus: PaymentStatus;
   createdAt: string;
   holdUntil: string;
+  receiptToken?: string;
   paymentReference?: string;
+  stripeEventId?: string;
+  refundStatus?: RefundStatus;
   adminEmailSentAt?: string;
   latePayment?: boolean;
 }
@@ -125,6 +158,22 @@ export function expireUnpaidBookings(bookings: Booking[], now = new Date()) {
     return booking;
   });
   return { bookings: updated, changed };
+}
+
+/**
+ * Bound historical storage without ever dropping an active or paid booking.
+ * If active bookings exceed the cap, keeping them is safer than risking an overbooking.
+ */
+export function compactBookings(bookings: Booking[], now = new Date()) {
+  if (bookings.length <= MAX_STORED_BOOKINGS) return bookings;
+  const isActive = (booking: Booking) => booking.bookingStatus !== "cancelled" &&
+    (booking.paymentStatus === "paid" || new Date(booking.holdUntil) > now);
+  const active = bookings.filter(isActive);
+  const activeIds = new Set(active.map((booking) => booking.id));
+  const historicalSlots = Math.max(0, MAX_STORED_BOOKINGS - active.length);
+  const historical = bookings.filter((booking) => !activeIds.has(booking.id)).slice(-historicalSlots);
+  const keepIds = new Set([...active, ...historical].map((booking) => booking.id));
+  return bookings.filter((booking) => keepIds.has(booking.id));
 }
 
 export function getAvailableRoomNumbers(bookings: Booking[], checkIn: string, checkOut: string, openRooms = Array.from({ length: ROOM_COUNT }, (_, index) => index + 1), closures: RoomClosure[] = []) {
