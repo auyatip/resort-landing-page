@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
 import { Booking, expireUnpaidBookings } from "../../../lib/booking";
 import { expireStripeCheckoutSession } from "../../../lib/stripe-booking";
+import { writeBookingLog } from "../../../lib/booking-log";
 
 const redis = Redis.fromEnv();
 
@@ -21,13 +22,16 @@ export async function GET(request: NextRequest) {
     let stripeSessionsExpired = 0;
     for (const booking of expired) {
       try {
-        if (await expireStripeCheckoutSession(booking.paymentReference)) stripeSessionsExpired += 1;
+        if (await expireStripeCheckoutSession(booking.paymentReference, booking.id)) stripeSessionsExpired += 1;
       } catch (error) {
         console.error("Cron could not expire Stripe Checkout session:", { bookingId: booking.id, error });
       }
     }
     const result = expireUnpaidBookings(bookings);
-    if (result.changed) await redis.set("bookings", result.bookings);
+    if (result.changed) {
+      await redis.set("bookings", result.bookings);
+      await Promise.all(expired.map((booking) => writeBookingLog({ bookingId: booking.id, event: "booking.expired", actor: "system", status: "success", metadata: { holdUntil: booking.holdUntil } })));
+    }
     return NextResponse.json({ success: true, expired: result.bookings.filter((booking, index) => result.changed && bookings[index]?.bookingStatus === "pending" && booking.bookingStatus === "cancelled").length, stripeSessionsExpired });
   } catch (error) {
     console.error("Expire bookings cron failed:", error);

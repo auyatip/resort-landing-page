@@ -33,6 +33,7 @@ export default function RoomCard({
 }: RoomCardProps) {
   const images = galleryImages.length ? galleryImages : [image];
   const [activeImage, setActiveImage] = useState(0);
+  const activeImageIsBathroom = /bathroom|toilet/i.test(images[activeImage]);
   const showPrevious = () => setActiveImage((current) => (current - 1 + images.length) % images.length);
   const showNext = () => setActiveImage((current) => (current + 1) % images.length);
   return (
@@ -46,7 +47,7 @@ export default function RoomCard({
             alt={name}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-            className="object-cover"
+            className={activeImageIsBathroom ? "object-contain bg-[#f3f1eb]" : "object-cover"}
             priority
           />
           {images.length > 1 && <>

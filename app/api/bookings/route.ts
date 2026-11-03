@@ -5,6 +5,7 @@ import { BOOKING_HOLD_MINUTES, Booking, compactBookings, expireUnpaidBookings, g
 import { getPricingConfig, getStayPricingFromConfig } from "../../lib/pricing-server";
 import { consumeRateLimit, getClientIp } from "../../lib/rate-limit";
 import { expireStripeCheckoutSession } from "../../lib/stripe-booking";
+import { writeBookingLog } from "../../lib/booking-log";
 
 const redis = Redis.fromEnv();
 const BOOKINGS_KEY = "bookings";
@@ -16,7 +17,7 @@ async function getBookings() {
   const result = expireUnpaidBookings(stored);
   const expired = stored.filter((booking) => booking.bookingStatus === "pending" && booking.paymentStatus === "pending" && new Date(booking.holdUntil) <= new Date());
   await Promise.all(expired.map(async (booking) => {
-    try { await expireStripeCheckoutSession(booking.paymentReference); }
+      try { await expireStripeCheckoutSession(booking.paymentReference, booking.id); }
     catch (error) { console.error("Unable to expire Stripe Checkout session:", { bookingId: booking.id, error }); }
   }));
   const compacted = compactBookings(result.bookings);
@@ -156,12 +157,25 @@ export async function POST(request: NextRequest) {
       receiptToken: randomUUID(),
     };
     await redis.set(BOOKINGS_KEY, compactBookings([...bookings, booking]));
+      await writeBookingLog({
+        bookingId: booking.id,
+        event: "booking.created",
+        actor: "guest",
+        status: "success",
+        metadata: { checkIn, checkOut, nights, rooms: requestedRooms, amount: booking.amount, roomNumbers },
+        ip: getClientIp(request),
+        userAgent: request.headers.get("user-agent") || undefined,
+      });
 
     let checkout: { url: string; id: string } | null = null;
     try {
       checkout = await createStripeCheckout(booking, request.nextUrl.origin);
+        if (!checkout) throw new Error("Stripe checkout was not created");
+        await writeBookingLog({ bookingId: booking.id, event: "stripe.checkout.created", actor: "stripe", status: "success", metadata: { sessionId: checkout.id, amount: booking.amount } });
     } catch (error) {
+        await writeBookingLog({ bookingId: booking.id, event: "stripe.checkout.create_failed", actor: "stripe", status: "failed", metadata: { error: error instanceof Error ? error.message : String(error) } });
       await redis.set(BOOKINGS_KEY, compactBookings([...bookings, { ...booking, bookingStatus: "cancelled", paymentStatus: "failed" }]));
+        await writeBookingLog({ bookingId: booking.id, event: "booking.cancelled", actor: "system", status: "success", metadata: { reason: "stripe_checkout_creation_failed" } });
       throw error;
     }
     if (checkout) {

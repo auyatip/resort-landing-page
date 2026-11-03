@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { Redis } from "@upstash/redis";
 import { Booking } from "../../../lib/booking";
+import { writeBookingLog } from "../../../lib/booking-log";
 
 const redis = Redis.fromEnv();
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "atipthummakul@gmail.com";
@@ -124,6 +125,8 @@ export async function POST(request: NextRequest) {
   try {
     const event = JSON.parse(payload);
     console.log("Stripe webhook event:", event.type);
+    const eventBookingId = event.data?.object?.metadata?.booking_id as string | undefined;
+    await writeBookingLog({ bookingId: eventBookingId, event: "payment.webhook_received", actor: "stripe", status: "success", stripeEventId: event.id, metadata: { type: event.type }, dedupeKey: `stripe-webhook:${event.id}` });
     if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
       const session = event.data.object;
       const bookingId = session.metadata?.booking_id;
@@ -135,12 +138,16 @@ export async function POST(request: NextRequest) {
           console.error("Stripe webhook booking not found; asking Stripe to retry:", bookingId);
           return NextResponse.json({ received: false }, { status: 500 });
         }
-        if (current.stripeEventId === event.id && current.adminEmailSentAt && current.customerEmailSentAt) return NextResponse.json({ received: true });
+        if (current.stripeEventId === event.id && current.adminEmailSentAt && current.customerEmailSentAt) {
+          await writeBookingLog({ bookingId, event: "payment.webhook_ignored_duplicate", actor: "stripe", status: "ignored", stripeEventId: event.id });
+          return NextResponse.json({ received: true });
+        }
         if (current.paymentReference && current.paymentReference !== session.id) {
           console.error("Stripe checkout session does not match booking:", { bookingId, expected: current.paymentReference, received: session.id });
           return NextResponse.json({ received: false }, { status: 400 });
         }
         if (session.payment_status !== "paid" || Number(session.amount_total) !== current.amount * 100 || String(session.currency || "").toLowerCase() !== "thb") {
+          await writeBookingLog({ bookingId, event: "payment.validation_failed", actor: "stripe", status: "failed", stripeEventId: event.id, metadata: { paymentStatus: session.payment_status, amountTotal: session.amount_total, expectedAmount: current.amount * 100, currency: session.currency } });
           console.error("Stripe checkout validation failed:", { bookingId, paymentStatus: session.payment_status, amountTotal: session.amount_total, currency: session.currency });
           return NextResponse.json({ received: false }, { status: 400 });
         }
@@ -161,15 +168,19 @@ export async function POST(request: NextRequest) {
             ? { ...booking, paymentStatus: refundStatus === "succeeded" ? "refunded" as const : "paid" as const, paymentReference: paymentIntent || booking.paymentReference, latePayment: true, refundStatus, stripeEventId: event.id }
             : booking));
           console.error("Payment received after booking expired or was cancelled:", bookingId);
+          await writeBookingLog({ bookingId, event: "payment.late_payment", actor: "stripe", status: refundStatus === "failed" ? "failed" : "success", stripeEventId: event.id, metadata: { refundStatus, paymentIntent } });
           return NextResponse.json({ received: refundStatus !== "failed" }, { status: refundStatus === "failed" ? 500 : 200 });
         }
         const confirmedBooking: Booking = { ...current, bookingStatus: "confirmed", paymentStatus: "paid", paymentReference: session.payment_intent || current.paymentReference, stripeEventId: event.id };
         const updated = bookings.map((booking) => booking.id === bookingId ? confirmedBooking : booking);
         await redis.set("bookings", updated);
+        await writeBookingLog({ bookingId, event: "booking.confirmed", actor: "stripe", status: "success", stripeEventId: event.id, metadata: { amount: confirmedBooking.amount, paymentIntent: session.payment_intent || null } });
         const emailSent = await sendAdminBookingEmail(confirmedBooking);
         console.log("Admin booking email result:", { bookingId, sent: emailSent });
+        await writeBookingLog({ bookingId, event: emailSent ? "email.admin_sent" : "email.admin_skipped", actor: "system", status: emailSent ? "success" : "ignored" });
         const customerEmailSent = await sendCustomerBookingEmail(confirmedBooking);
         console.log("Customer booking email result:", { bookingId, sent: customerEmailSent });
+        await writeBookingLog({ bookingId, event: customerEmailSent ? "email.customer_sent" : "email.customer_skipped", actor: "system", status: customerEmailSent ? "success" : "ignored" });
         if (emailSent) {
           await redis.set("bookings", updated.map((booking) => booking.id === bookingId ? { ...booking, adminEmailSentAt: new Date().toISOString() } : booking));
         }
@@ -188,6 +199,7 @@ export async function POST(request: NextRequest) {
         await redis.set("bookings", bookings.map((booking) => booking.id === bookingId
           ? { ...booking, bookingStatus: "cancelled" as const, paymentStatus: "failed" as const }
           : booking));
+        await writeBookingLog({ bookingId, event: "booking.cancelled", actor: "stripe", status: "success", stripeEventId: event.id, metadata: { reason: "stripe_checkout_expired" } });
       }
     }
     return NextResponse.json({ received: true });

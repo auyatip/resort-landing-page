@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 export default function AdminNavigation({ active = "" }: { active?: string }) {
   const router = useRouter();
-  const items = [["overview", "Overview", "/admin"], ["bookings", "Bookings", "/admin/booking"], ["rooms", "Room management", "/admin/rooms"], ["pricing", "Pricing", "/admin/pricing"], ["analytics", "Analytics", "/admin/analytics"], ["visitors", "Visitors", "/admin/visitors"]];
+  const items = [["overview", "Overview", "/admin"], ["bookings", "Bookings", "/admin/booking"], ["rooms", "Room management", "/admin/rooms"], ["pricing", "Pricing", "/admin/pricing"], ["logs", "Activity logs", "/admin/logs"], ["analytics", "Analytics", "/admin/analytics"], ["visitors", "Visitors", "/admin/visitors"]];
   const logout = async () => {
     await fetch("/api/admin/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "logout" }) });
     router.push("/admin");

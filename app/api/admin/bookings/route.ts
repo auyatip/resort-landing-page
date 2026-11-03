@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
 import { Booking } from "../../../lib/booking";
 import { isAdminAuthorized } from "../../../lib/admin-auth";
+import { writeBookingLog } from "../../../lib/booking-log";
 
 const redis = Redis.fromEnv();
 async function refundPayment(paymentIntent: string, bookingId: string) {
@@ -36,14 +37,18 @@ export async function POST(request: NextRequest) {
     let paymentStatus = booking.paymentStatus;
     if (action === "refund") {
       if (booking.paymentStatus !== "paid" || !booking.paymentReference) return NextResponse.json({ success: false, message: "This booking has no refundable payment" }, { status: 400 });
+      await writeBookingLog({ bookingId, event: "admin.booking_refund_requested", actor: "admin", status: "success", metadata: { paymentReference: booking.paymentReference } });
       const refund = await refundPayment(booking.paymentReference, booking.id);
       if (refund.status !== "succeeded" && refund.status !== "pending") throw new Error("Refund was not accepted");
       paymentStatus = "refunded";
+      await writeBookingLog({ bookingId, event: "admin.booking_refunded", actor: "admin", status: "success", metadata: { refundStatus: refund.status } });
     }
     const updatedBooking = { ...booking, bookingStatus: "cancelled" as const, paymentStatus, ...(action === "refund" ? { refundStatus: "succeeded" as const } : {}) };
     await redis.set("bookings", bookings.map((item) => item.id === bookingId ? updatedBooking : item));
+    await writeBookingLog({ bookingId, event: "admin.booking_cancelled", actor: "admin", status: "success", metadata: { action, paymentStatus } });
     return NextResponse.json({ success: true, booking: updatedBooking });
   } catch (error) {
+    console.error("Admin booking action failed:", error);
     return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Unable to update booking" }, { status: 500 });
   }
 }
