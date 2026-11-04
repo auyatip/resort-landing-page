@@ -39,6 +39,24 @@ function withAvailabilityCache(response: NextResponse) {
   return response;
 }
 
+async function checkAvailabilityAbuse(request: NextRequest, checkIn: string, checkOut: string) {
+  const ip = getClientIp(request);
+  const requestRate = await consumeRateLimit(`availability-check:${ip}`, 30, 60);
+  if (!requestRate.allowed) return requestRate;
+
+  const scanKey = `availability-scan:${ip}`;
+  const dateSignature = `${checkIn}:${checkOut}`;
+  const uniqueDates = await redis.sadd(scanKey, dateSignature);
+  if (uniqueDates === 1) await redis.expire(scanKey, 5 * 60);
+  return { allowed: uniqueDates <= 12, count: uniqueDates, retryAfter: 5 * 60 };
+}
+
+function availabilityRateLimitError(retryAfter: number) {
+  const response = jsonError("Availability checks are temporarily limited. Please try again later.", 429);
+  response.headers.set("Retry-After", String(retryAfter));
+  return response;
+}
+
 async function acquireBookingLock(token: string) {
   return Boolean(await redis.set(BOOKING_LOCK_KEY, token, { nx: true, ex: 20 }));
 }
@@ -195,9 +213,12 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const settings = await getBookingSettings();
     const checkIn = request.nextUrl.searchParams.get("checkIn") || "";
     const checkOut = request.nextUrl.searchParams.get("checkOut") || "";
+    const abuseCheck = await checkAvailabilityAbuse(request, checkIn, checkOut);
+    if (!abuseCheck.allowed) return availabilityRateLimitError(abuseCheck.retryAfter);
+
+    const settings = await getBookingSettings();
     const nights = getNights(checkIn, checkOut);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(checkIn) || !/^\d{4}-\d{2}-\d{2}$/.test(checkOut) || nights < 1) {
       return withAvailabilityCache(NextResponse.json({ success: true, availableRooms: settings.bookingOpen ? settings.openRooms.length : 0, roomCount: ROOM_COUNT, bookingOpen: settings.bookingOpen, openRooms: settings.openRooms }));

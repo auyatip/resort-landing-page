@@ -1,0 +1,9 @@
+node_modules
+.next
+out
+build
+public/images
+public/Guide
+*.min.*
+*.map
+tsconfig.tsbuildinfo
