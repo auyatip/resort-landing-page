@@ -48,15 +48,17 @@ export async function POST(request: NextRequest) {
     }
 
     let paymentStatus = booking.paymentStatus;
+    let refundStatus: "pending" | "requires_action" | "succeeded" | undefined;
     if (action === "refund") {
       if (booking.paymentStatus !== "paid" || !booking.paymentReference) return NextResponse.json({ success: false, message: "This booking has no refundable payment" }, { status: 400 });
       await writeBookingLog({ bookingId, event: "admin.booking_refund_requested", actor: "admin", status: "success", metadata: { paymentReference: booking.paymentReference } });
       const refund = await refundPayment(booking.paymentReference, booking.id);
-      if (refund.status !== "succeeded" && refund.status !== "pending") throw new Error(`Refund was not accepted${refund.status ? ` (status: ${refund.status})` : ""}`);
-      paymentStatus = "refunded";
+      if (!["succeeded", "pending", "requires_action"].includes(refund.status)) throw new Error(`Refund was not accepted${refund.status ? ` (status: ${refund.status})` : ""}`);
+      paymentStatus = refund.status === "succeeded" ? "refunded" : "paid";
+      refundStatus = refund.status;
       await writeBookingLog({ bookingId, event: "admin.booking_refunded", actor: "admin", status: "success", metadata: { refundStatus: refund.status } });
     }
-    const updatedBooking = { ...booking, bookingStatus: "cancelled" as const, paymentStatus, ...(action === "refund" ? { refundStatus: "succeeded" as const } : {}) };
+    const updatedBooking = { ...booking, bookingStatus: "cancelled" as const, paymentStatus, ...(action === "refund" ? { refundStatus } : {}) };
     await redis.set("bookings", bookings.map((item) => item.id === bookingId ? updatedBooking : item));
     await writeBookingLog({ bookingId, event: "admin.booking_cancelled", actor: "admin", status: "success", metadata: { action, paymentStatus } });
     return NextResponse.json({ success: true, booking: updatedBooking });

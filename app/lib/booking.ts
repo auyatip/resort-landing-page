@@ -96,7 +96,7 @@ export function getStayPricingWithRates(checkIn: string, checkOut: string, rates
 
 export type BookingStatus = "pending" | "confirmed" | "cancelled";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
-export type RefundStatus = "pending" | "succeeded" | "failed";
+export type RefundStatus = "pending" | "requires_action" | "succeeded" | "failed";
 
 export interface Booking {
   id: string;
