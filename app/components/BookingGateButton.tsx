@@ -6,10 +6,25 @@ type Props = { children: ReactNode; className?: string };
 
 export default function BookingGateButton({ children, className = "" }: Props) {
   const [closed, setClosed] = useState(false);
+  const [checking, setChecking] = useState(false);
+
+  async function handleClick() {
+    setChecking(true);
+    try {
+      const response = await fetch("/api/bookings");
+      const data = await response.json();
+      if (data.bookingOpen === false) setClosed(true);
+      else window.location.href = "/booking";
+    } catch {
+      window.location.href = "/booking";
+    } finally {
+      setChecking(false);
+    }
+  }
 
   return (
     <>
-      <button type="button" onClick={() => setClosed(true)} className={className}>
+      <button type="button" onClick={handleClick} disabled={checking} className={className}>
         {children}
       </button>
       {closed && (
