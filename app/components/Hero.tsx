@@ -64,15 +64,12 @@ export default function Hero() {
             <span>{t.heroCheckAvailability}</span>
           </BookingGateButton>
 
-          <a
-            href={whatsappLink}
-            target="_blank"
-            rel="noopener noreferrer"
+          <BookingGateButton
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/50 bg-white/10 px-7 py-3.5 font-poppins font-bold text-white transition-colors duration-200 hover:bg-white/20"
           >
             <iconify-icon icon="simple-icons:whatsapp" width="18" height="18" aria-hidden="true" />
             <span>{t.heroBookWhatsApp}</span>
-          </a>
+          </BookingGateButton>
         </div>
 
         {/* Scroll */}

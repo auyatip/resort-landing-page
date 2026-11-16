@@ -104,20 +104,16 @@ export default function RoomCard({
               {primaryBookText}
             </BookingGateButton>
             <div className="grid grid-cols-2 gap-3">
-              <a
-                href="https://lin.ee/TB4B1R9"
+              <BookingGateButton
                 className="inline-flex min-h-11 items-center justify-center rounded-lg border border-primary bg-transparent px-3 py-3 text-center text-sm font-poppins font-semibold text-primary transition-colors duration-200 hover:bg-primary hover:text-white"
               >
                 {bookLineText}
-              </a>
-              <a
-                href="https://wa.me/66946765524?text=Hi%20I%27m%20interested%20in%20booking%20a%20room%20at%20A-Thip%20House"
-                target="_blank"
-                rel="noopener noreferrer"
+              </BookingGateButton>
+              <BookingGateButton
                 className="inline-flex min-h-11 items-center justify-center rounded-lg border border-green-600 bg-transparent px-3 py-3 text-center text-sm font-poppins font-semibold text-green-700 transition-colors duration-200 hover:bg-green-600 hover:text-white"
               >
                 {bookWhatsAppText}
-              </a>
+              </BookingGateButton>
             </div>
           </div>
 
