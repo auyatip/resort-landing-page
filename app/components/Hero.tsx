@@ -57,22 +57,22 @@ export default function Hero() {
 
         {/* CTA */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-5">
-          <a
-            href={whatsappLink}
-            target="_blank"
-            rel="noopener noreferrer"
+          <BookingGateButton
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-accent px-7 py-3.5 font-poppins font-bold text-primary shadow-lg transition-colors duration-200 hover:bg-[#d6b260]"
           >
             <iconify-icon icon="material-symbols:calendar-month" width="18" height="18" aria-hidden="true" />
             <span>{t.heroCheckAvailability}</span>
-          </a>
+          </BookingGateButton>
 
-          <BookingGateButton
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/50 bg-white/10 px-7 py-3.5 font-poppins font-bold text-white transition-colors duration-200 hover:bg-white/20"
           >
             <iconify-icon icon="simple-icons:whatsapp" width="18" height="18" aria-hidden="true" />
             <span>{t.heroBookWhatsApp}</span>
-          </BookingGateButton>
+          </a>
         </div>
 
         {/* Scroll */}
