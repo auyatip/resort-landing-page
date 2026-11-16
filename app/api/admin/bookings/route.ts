@@ -8,7 +8,19 @@ const redis = Redis.fromEnv();
 async function refundPayment(paymentIntent: string, bookingId: string) {
   const secret = process.env.STRIPE_SECRET_KEY;
   if (!secret) throw new Error("Stripe is not configured");
-  const params = new URLSearchParams({ payment_intent: paymentIntent });
+  let resolvedPaymentIntent = paymentIntent;
+  if (paymentIntent.startsWith("cs_")) {
+    const sessionResponse = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(paymentIntent)}?expand[]=payment_intent`, {
+      headers: { Authorization: `Bearer ${secret}` },
+    });
+    const sessionBody = await sessionResponse.json();
+    if (!sessionResponse.ok) throw new Error(`Stripe Checkout lookup failed: ${sessionBody?.error?.message || sessionResponse.status}`);
+    resolvedPaymentIntent = typeof sessionBody.payment_intent === "string"
+      ? sessionBody.payment_intent
+      : sessionBody.payment_intent?.id || "";
+    if (!resolvedPaymentIntent) throw new Error("Stripe Checkout Session has no Payment Intent");
+  }
+  const params = new URLSearchParams({ payment_intent: resolvedPaymentIntent });
   const response = await fetch("https://api.stripe.com/v1/refunds", {
     method: "POST",
     headers: {
@@ -18,8 +30,9 @@ async function refundPayment(paymentIntent: string, bookingId: string) {
     },
     body: params,
   });
-  if (!response.ok) throw new Error("Stripe refund failed");
-  return response.json();
+  const body = await response.json();
+  if (!response.ok) throw new Error(`Stripe refund failed: ${body?.error?.message || response.status}`);
+  return body;
 }
 
 export async function POST(request: NextRequest) {
@@ -39,7 +52,7 @@ export async function POST(request: NextRequest) {
       if (booking.paymentStatus !== "paid" || !booking.paymentReference) return NextResponse.json({ success: false, message: "This booking has no refundable payment" }, { status: 400 });
       await writeBookingLog({ bookingId, event: "admin.booking_refund_requested", actor: "admin", status: "success", metadata: { paymentReference: booking.paymentReference } });
       const refund = await refundPayment(booking.paymentReference, booking.id);
-      if (refund.status !== "succeeded" && refund.status !== "pending") throw new Error("Refund was not accepted");
+      if (refund.status !== "succeeded" && refund.status !== "pending") throw new Error(`Refund was not accepted${refund.status ? ` (status: ${refund.status})` : ""}`);
       paymentStatus = "refunded";
       await writeBookingLog({ bookingId, event: "admin.booking_refunded", actor: "admin", status: "success", metadata: { refundStatus: refund.status } });
     }
