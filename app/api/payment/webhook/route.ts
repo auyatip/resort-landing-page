@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 import { Redis } from "@upstash/redis";
-import { Booking } from "../../../lib/booking";
+import { Booking, describeBreakfast } from "../../../lib/booking";
 import { writeBookingLog } from "../../../lib/booking-log";
 
 const redis = Redis.fromEnv();
@@ -29,6 +29,7 @@ async function sendAdminBookingEmail(booking: Booking) {
     "Check-in: " + booking.checkIn,
     "Check-out: " + booking.checkOut,
     "Nights: " + booking.nights,
+    "Breakfast: " + describeBreakfast(booking),
     "Total paid: THB " + booking.amount.toLocaleString(),
     "",
     "View booking: " + siteUrl + "/admin",
@@ -42,7 +43,7 @@ async function sendAdminBookingEmail(booking: Booking) {
       subject,
       text,
       html: "<h2>New paid booking</h2><p>Your booking has been paid and confirmed.</p><table>" +
-        [["Booking ID", booking.id], ["Guest", booking.guestName], ["Phone", booking.phone || "-"], ["Rooms", "#" + (booking.roomNumbers?.join(", #") || booking.roomNumber)], ["Check-in", booking.checkIn], ["Check-out", booking.checkOut], ["Nights", String(booking.nights)], ["Total paid", "THB " + booking.amount.toLocaleString()]].map(([label, value]) => "<tr><td style=\"padding:6px 16px 6px 0\"><strong>" + label + "</strong></td><td style=\"padding:6px 0\">" + escapeHtml(value) + "</td></tr>").join("") +
+        [["Booking ID", booking.id], ["Guest", booking.guestName], ["Phone", booking.phone || "-"], ["Rooms", "#" + (booking.roomNumbers?.join(", #") || booking.roomNumber)], ["Check-in", booking.checkIn], ["Check-out", booking.checkOut], ["Nights", String(booking.nights)], ["Breakfast", describeBreakfast(booking)], ["Total paid", "THB " + booking.amount.toLocaleString()]].map(([label, value]) => "<tr><td style=\"padding:6px 16px 6px 0\"><strong>" + label + "</strong></td><td style=\"padding:6px 0\">" + escapeHtml(value) + "</td></tr>").join("") +
         "</table><p><a href=\"" + escapeHtml(siteUrl + "/admin") + "\">Open admin dashboard</a></p>",
     }),
   });
@@ -64,6 +65,7 @@ async function sendCustomerBookingEmail(booking: Booking) {
     "Check-in: " + booking.checkIn + " from 14:00",
     "Check-out: " + booking.checkOut + " by 12:00",
     "Nights: " + booking.nights,
+    "Breakfast: " + describeBreakfast(booking),
     "Total paid: THB " + booking.amount.toLocaleString(),
     "",
     "View your booking receipt: " + siteUrl + "/booking/success?booking=" + booking.receiptToken,
@@ -71,7 +73,7 @@ async function sendCustomerBookingEmail(booking: Booking) {
     "If you need help, please contact A-Thip House.",
   ].join("\n");
   const html = "<h2>Booking confirmed</h2><p>Your payment has been received and your stay is confirmed.</p><table>" +
-    [["Booking ID", booking.id], ["Guest", booking.guestName], ["Rooms", "#" + (booking.roomNumbers?.join(", #") || booking.roomNumber)], ["Check-in", booking.checkIn + " from 14:00"], ["Check-out", booking.checkOut + " by 12:00"], ["Nights", String(booking.nights)], ["Total paid", "THB " + booking.amount.toLocaleString()]].map(([label, value]) => "<tr><td style=\"padding:6px 16px 6px 0\"><strong>" + label + "</strong></td><td style=\"padding:6px 0\">" + escapeHtml(value) + "</td></tr>").join("") +
+    [["Booking ID", booking.id], ["Guest", booking.guestName], ["Rooms", "#" + (booking.roomNumbers?.join(", #") || booking.roomNumber)], ["Check-in", booking.checkIn + " from 14:00"], ["Check-out", booking.checkOut + " by 12:00"], ["Nights", String(booking.nights)], ["Breakfast", describeBreakfast(booking)], ["Total paid", "THB " + booking.amount.toLocaleString()]].map(([label, value]) => "<tr><td style=\"padding:6px 16px 6px 0\"><strong>" + label + "</strong></td><td style=\"padding:6px 0\">" + escapeHtml(value) + "</td></tr>").join("") +
     "</table><p><a href=\"" + escapeHtml(siteUrl + "/booking/success?booking=" + booking.receiptToken) + "\">View booking receipt</a></p>";
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",

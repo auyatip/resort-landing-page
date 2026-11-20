@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { Redis } from "@upstash/redis";
-import { BOOKING_HOLD_MINUTES, Booking, compactBookings, expireUnpaidBookings, getAvailableRoomNumbers, getNights, getStayDiscount, getStayPricing, isBookingEnabled, retryAsync, RoomClosure, ROOM_COUNT } from "../../lib/booking";
+import { BREAKFAST_MENUS, BREAKFAST_PRICE_THB, getBreakfastAmount, isBreakfastMenu, BOOKING_HOLD_MINUTES, Booking, compactBookings, expireUnpaidBookings, getAvailableRoomNumbers, getNights, getStayDiscount, getStayPricing, isBookingEnabled, retryAsync, RoomClosure, ROOM_COUNT } from "../../lib/booking";
 import { getPricingConfig, getStayPricingFromConfig } from "../../lib/pricing-server";
 import { consumeRateLimit, getClientIp } from "../../lib/rate-limit";
 import { expireStripeCheckoutSession } from "../../lib/stripe-booking";
@@ -84,8 +84,14 @@ async function createStripeCheckout(booking: Booking, requestOrigin: string) {
   params.set("cancel_url", `${siteUrl}/booking?cancelled=${booking.id}`);
   params.set("line_items[0][price_data][currency]", "thb");
   params.set("line_items[0][price_data][product_data][name]", "A-Thip House stay - " + (booking.rooms || 1) + " room" + ((booking.rooms || 1) > 1 ? "s" : "") + ", " + booking.nights + " night" + (booking.nights > 1 ? "s" : ""));
-  params.set("line_items[0][price_data][unit_amount]", String(booking.amount * 100));
+  params.set("line_items[0][price_data][unit_amount]", String((booking.amount - (booking.breakfastAmount || 0)) * 100));
   params.set("line_items[0][quantity]", "1");
+  if (booking.breakfastMenu) {
+    params.set("line_items[1][price_data][currency]", "thb");
+    params.set("line_items[1][price_data][product_data][name]", "Breakfast for 2 — " + BREAKFAST_MENUS[booking.breakfastMenu].en);
+    params.set("line_items[1][price_data][unit_amount]", String(BREAKFAST_PRICE_THB * 100));
+    params.set("line_items[1][quantity]", String((booking.rooms || 1) * booking.nights));
+  }
   if (booking.email) params.set("customer_email", booking.email);
   params.set("metadata[booking_id]", booking.id);
 
@@ -123,6 +129,8 @@ export async function POST(request: NextRequest) {
     if (!Number.isInteger(requestedRoomsValue) || requestedRoomsValue < 1 || requestedRoomsValue > ROOM_COUNT) {
       return jsonError("Please choose a valid number of rooms.");
     }
+    if (body.breakfastMenu !== undefined && body.breakfastMenu !== "" && !isBreakfastMenu(body.breakfastMenu)) return jsonError("Please choose a valid breakfast menu.");
+    const breakfastMenu = isBreakfastMenu(body.breakfastMenu) ? body.breakfastMenu : undefined;
     const requestedRooms = requestedRoomsValue;
     const checkIn = String(body.checkIn || "");
     const checkOut = String(body.checkOut || "");
@@ -159,13 +167,15 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     const stayPricing = getStayPricingFromConfig(checkIn, checkOut, await getPricingConfig());
     const stayDiscount = getStayDiscount(stayPricing.total, stayPricing.nights);
+    const breakfastAmount = getBreakfastAmount(breakfastMenu, requestedRooms, nights);
     const booking: Booking = {
       id: `ATH-${now.getTime().toString(36).toUpperCase()}`,
       roomNumber: roomNumbers[0],
       roomNumbers,
       rooms: requestedRooms,
       guestName, firstName, lastName, email, phone, policyAcceptedAt: new Date().toISOString(), checkIn, checkOut, nights,
-      amount: stayDiscount.total * requestedRooms,
+      amount: stayDiscount.total * requestedRooms + breakfastAmount,
+      breakfastMenu, breakfastAmount,
       subtotal: stayPricing.total * requestedRooms,
       discount: stayDiscount.discount * requestedRooms,
       discountRate: stayDiscount.rate,
@@ -180,7 +190,7 @@ export async function POST(request: NextRequest) {
         event: "booking.created",
         actor: "guest",
         status: "success",
-        metadata: { checkIn, checkOut, nights, rooms: requestedRooms, amount: booking.amount, roomNumbers },
+        metadata: { checkIn, checkOut, nights, rooms: requestedRooms, amount: booking.amount, breakfastMenu: breakfastMenu || null, breakfastAmount, roomNumbers },
         ip: getClientIp(request),
         userAgent: request.headers.get("user-agent") || undefined,
       });

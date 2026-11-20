@@ -1,5 +1,6 @@
 "use client";
 
+import { BreakfastMenu, describeBreakfast } from "../../lib/booking";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -13,6 +14,8 @@ type Receipt = {
   checkOut: string;
   nights: number;
   amount: number;
+  breakfastMenu?: BreakfastMenu;
+  breakfastAmount?: number;
 };
 
 const copy = {
@@ -139,6 +142,7 @@ function BookingSuccessContent() {
                 <div><dt className="text-xs uppercase tracking-wider text-gray-500">{t.nights}</dt><dd className="mt-1 font-semibold text-gray-800">{receipt.nights}</dd></div>
                 <div><dt className="text-xs uppercase tracking-wider text-gray-500">{t.checkIn}</dt><dd className="mt-1 font-semibold text-gray-800">{formatDate(receipt.checkIn, lang)}</dd></div>
                 <div><dt className="text-xs uppercase tracking-wider text-gray-500">{t.checkOut}</dt><dd className="mt-1 font-semibold text-gray-800">{formatDate(receipt.checkOut, lang)}</dd></div>
+                <div className="sm:col-span-2"><dt className="text-sm text-gray-500">{lang === "th" ? "อาหารเช้า" : "Breakfast"}</dt><dd className="mt-1 font-semibold text-gray-800">{describeBreakfast(receipt, lang)}</dd></div>
               </dl>
               <div className="mt-8 flex items-center justify-between rounded-2xl bg-accent/30 p-5">
                 <span className="font-semibold text-primary">{t.total}</span>

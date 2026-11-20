@@ -21,6 +21,8 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
       checkOut: booking.checkOut,
       nights: booking.nights,
       amount: booking.amount,
+      breakfastMenu: booking.breakfastMenu,
+      breakfastAmount: booking.breakfastAmount,
       bookingStatus: booking.bookingStatus,
       paymentStatus: booking.paymentStatus,
     },

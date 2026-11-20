@@ -1,6 +1,30 @@
 // Fallback/base price kept for older UI imports.
 export const ROOM_PRICE_THB = 550;
 export const ROOM_COUNT = 5;
+export const BREAKFAST_PRICE_THB = 250;
+export const BREAKFAST_MENUS = {
+  porridge: { th: "โจ๊ก + น้ำส้ม", en: "Rice porridge + orange juice" },
+  western: { th: "ไส้กรอก แฮม ไข่ดาว + น้ำส้ม", en: "Sausages, ham and fried eggs" },
+} as const;
+export type BreakfastMenu = keyof typeof BREAKFAST_MENUS;
+export function isBreakfastMenu(value: unknown): value is BreakfastMenu {
+  return value === "porridge" || value === "western";
+}
+export function getBreakfastAmount(menu: BreakfastMenu | undefined, rooms: number, nights: number) {
+  return menu && Number.isInteger(nights) && nights > 0 ? BREAKFAST_PRICE_THB * rooms * nights : 0;
+}
+export function describeBreakfast(
+  booking: { breakfastMenu?: BreakfastMenu; breakfastAmount?: number },
+  lang: "en" | "th" = "en",
+) {
+  return booking.breakfastMenu
+    ? BREAKFAST_MENUS[booking.breakfastMenu][lang] +
+        (lang === "th" ? " · สำหรับ 2 ท่านต่อห้องต่อคืน · ฿" : " · for 2 per room per night · ฿") +
+        (booking.breakfastAmount || 0).toLocaleString()
+    : lang === "th"
+      ? "ไม่รวมอาหารเช้า"
+      : "No breakfast";
+}
 export const BOOKING_HOLD_MINUTES = 15;
 /** Keep the single-array storage bounded until bookings move to per-record keys. */
 export const MAX_STORED_BOOKINGS = 2000;
@@ -77,17 +101,45 @@ export function getStayPricing(checkIn: string, checkOut: string) {
   return { nights, rates, total: rates.reduce((sum, rate) => sum + rate, 0) };
 }
 
-export function getStayPricingWithRates(checkIn: string, checkOut: string, ratesConfig: typeof NIGHTLY_RATES_THB & { daily?: Record<string, number>; weekend?: Record<keyof typeof NIGHTLY_RATES_THB, number> }) {
+export function getStayPricingWithRates(
+  checkIn: string,
+  checkOut: string,
+  ratesConfig: typeof NIGHTLY_RATES_THB & {
+    daily?: Record<string, number>;
+    weekend?: Record<keyof typeof NIGHTLY_RATES_THB, number>;
+  },
+) {
   const nights = getNights(checkIn, checkOut);
   const rates: number[] = [];
   const start = new Date(checkIn + "T00:00:00Z");
   for (let index = 0; index < nights; index += 1) {
     const night = new Date(start.getTime() + index * 86400000);
     const dateKey = night.toISOString().slice(0, 10);
-    if (ratesConfig.daily?.[dateKey]) { rates.push(ratesConfig.daily[dateKey]); continue; }
+    if (ratesConfig.daily?.[dateKey]) {
+      rates.push(ratesConfig.daily[dateKey]);
+      continue;
+    }
     const month = night.getUTCMonth() + 1;
     const day = night.getUTCDate();
-    const key = month === 12 && day >= 30 || month === 1 && day <= 2 ? "newYear" : (["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"] as const)[month - 1];
+    const key =
+      (month === 12 && day >= 30) || (month === 1 && day <= 2)
+        ? "newYear"
+        : (
+            [
+              "january",
+              "february",
+              "march",
+              "april",
+              "may",
+              "june",
+              "july",
+              "august",
+              "september",
+              "october",
+              "november",
+              "december",
+            ] as const
+          )[month - 1];
     const isWeekend = night.getUTCDay() === 0 || night.getUTCDay() === 6;
     rates.push(isWeekend && ratesConfig.weekend?.[key] ? ratesConfig.weekend[key] : ratesConfig[key]);
   }
@@ -113,6 +165,8 @@ export interface Booking {
   checkOut: string;
   nights: number;
   amount: number;
+  breakfastMenu?: BreakfastMenu;
+  breakfastAmount?: number;
   subtotal?: number;
   discount?: number;
   discountRate?: number;
@@ -144,15 +198,18 @@ export function getNights(checkIn: string, checkOut: string) {
 }
 
 export function isOverlapping(a: Booking, checkIn: string, checkOut: string) {
-  const active = a.bookingStatus !== "cancelled" &&
-    (a.paymentStatus === "paid" || new Date(a.holdUntil) > new Date());
+  const active = a.bookingStatus !== "cancelled" && (a.paymentStatus === "paid" || new Date(a.holdUntil) > new Date());
   return active && a.checkIn < checkOut && a.checkOut > checkIn;
 }
 
 export function expireUnpaidBookings(bookings: Booking[], now = new Date()) {
   let changed = false;
   const updated = bookings.map((booking) => {
-    if (booking.bookingStatus === "pending" && booking.paymentStatus === "pending" && new Date(booking.holdUntil) <= now) {
+    if (
+      booking.bookingStatus === "pending" &&
+      booking.paymentStatus === "pending" &&
+      new Date(booking.holdUntil) <= now
+    ) {
       changed = true;
       return { ...booking, bookingStatus: "cancelled" as const, paymentStatus: "failed" as const };
     }
@@ -167,8 +224,8 @@ export function expireUnpaidBookings(bookings: Booking[], now = new Date()) {
  */
 export function compactBookings(bookings: Booking[], now = new Date()) {
   if (bookings.length <= MAX_STORED_BOOKINGS) return bookings;
-  const isActive = (booking: Booking) => booking.bookingStatus !== "cancelled" &&
-    (booking.paymentStatus === "paid" || new Date(booking.holdUntil) > now);
+  const isActive = (booking: Booking) =>
+    booking.bookingStatus !== "cancelled" && (booking.paymentStatus === "paid" || new Date(booking.holdUntil) > now);
   const active = bookings.filter(isActive);
   const activeIds = new Set(active.map((booking) => booking.id));
   const historicalSlots = Math.max(0, MAX_STORED_BOOKINGS - active.length);
@@ -177,16 +234,30 @@ export function compactBookings(bookings: Booking[], now = new Date()) {
   return bookings.filter((booking) => keepIds.has(booking.id));
 }
 
-export function getAvailableRoomNumbers(bookings: Booking[], checkIn: string, checkOut: string, openRooms = Array.from({ length: ROOM_COUNT }, (_, index) => index + 1), closures: RoomClosure[] = []) {
+export function getAvailableRoomNumbers(
+  bookings: Booking[],
+  checkIn: string,
+  checkOut: string,
+  openRooms = Array.from({ length: ROOM_COUNT }, (_, index) => index + 1),
+  closures: RoomClosure[] = [],
+) {
   const occupied = new Set(
     bookings
       .filter((booking) => isOverlapping(booking, checkIn, checkOut))
-      .flatMap((booking) => booking.roomNumbers?.length ? booking.roomNumbers : [booking.roomNumber])
+      .flatMap((booking) => (booking.roomNumbers?.length ? booking.roomNumbers : [booking.roomNumber])),
   );
-  closures.filter((closure) => closure.checkIn < checkOut && closure.checkOut > checkIn).forEach((closure) => occupied.add(closure.roomNumber));
+  closures
+    .filter((closure) => closure.checkIn < checkOut && closure.checkOut > checkIn)
+    .forEach((closure) => occupied.add(closure.roomNumber));
   return openRooms.filter((room) => !occupied.has(room));
 }
 
-export function getAvailableRoomNumber(bookings: Booking[], checkIn: string, checkOut: string, openRooms = Array.from({ length: ROOM_COUNT }, (_, index) => index + 1), closures: RoomClosure[] = []) {
+export function getAvailableRoomNumber(
+  bookings: Booking[],
+  checkIn: string,
+  checkOut: string,
+  openRooms = Array.from({ length: ROOM_COUNT }, (_, index) => index + 1),
+  closures: RoomClosure[] = [],
+) {
   return getAvailableRoomNumbers(bookings, checkIn, checkOut, openRooms, closures)[0] || null;
 }
